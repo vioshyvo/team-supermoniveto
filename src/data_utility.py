@@ -144,8 +144,136 @@ def read_news(database_path, n_train, n_test, seed = None):
         tags_test.append(tags)
 
     return (news_train, tags_train, news_test, tags_test)
+
+
+def filter_text(sentences):
+    stop_words = set(stopwords.words('english'))
+    result = []
+    for sentence in sentences:
+        translator = str.maketrans('', '', string.punctuation)
+        sentence = sentence.translate(translator)
+        word_tokens = word_tokenize(sentence)
+        filtered_sentence = [w.lower() for w in word_tokens if not w in stop_words]
+        for word in filtered_sentence:
+            if word.isdigit():
+                result.append('NUM')
+            else:
+                result.append(word)
+    return result
+
+
+def process_data(database_path):
+    """
+    File which saves all files filtered and tokenized and also saves a
+    file with np.array including all tags for a file. This is done for a purpose not to re-analyze all data again.
+    :param database_path:
+    :return: write all docs filtered and tokenised into a file, splitted by a whitespace; write a .npy file with topics
+    """
+    corpus_path = database_path + 'REUTERS_CORPUS_2/'
+    data_path = corpus_path + 'data/'
+
+    tags_path = corpus_path + 'tags/'
+    tokenized_path = corpus_path + 'tokenized/'
+
+    if not os.path.exists(tags_path):
+        os.makedirs(tags_path)
+    if not os.path.exists(tokenized_path):
+        os.makedirs(tokenized_path)
+
+    data_list = os.listdir(data_path)
+
+    (topics, topic_index, topic_labels) = read_topics(database_path)
+
+    for file_name in data_list[0:10000]:
+        file_xml = data_path + file_name
+        (sentences, tags) = read_xml_file(file_xml)
+
+        filtered_sentences = filter_text(sentences)
+
+        tokenized_filename = tokenized_path + '_' + os.path.splitext(file_name)[0] + '.txt'
+        tag_filename = tags_path + '_' + os.path.splitext(file_name)[0] + '.npy'
+
+        tag_list = []
+        for tag in tags:
+            tag_index = topic_index[tag]
+            tag_list.append(tag_index)
+        tags_array = np.array(tag_list)
+
+        with open(tokenized_filename, 'w') as tkf:
+            tkf.write(' '.join(filtered_sentences))
+        with open(tag_filename, 'wb') as tgf:
+            np.save(tag_filename, tags_array)
+
+
+def build_dictionary(database_path):
+    """
+    A function to build a dictionary of all words in the data with words as keys and their indexes as values. 
+    0 index is for all new unknown words.
+    """
+    data_path = database_path + 'REUTERS_CORPUS_2/tokenized/'
+    dictionary = dict()
+    i = 1
+    data_list = os.listdir(data_path)
+    for file_name in data_list:
+        with open(data_path + file_name, 'r') as f:
+            sentence = f.read()
+            tokens = sentence.split(' ')
+            for word in tokens:
+                if word not in dictionary:
+                    dictionary[word] = i
+                i += 1
+    with open('dictionary.json', 'w') as df:
+        json.dump(dictionary, df)
+
+
+def vectorize_data(database_path):
+    """
+    A function to modify a tokenized file into a numpy array of its word indexes. 
+    """
+    data_path = database_path + 'REUTERS_CORPUS_2/tokenized/'
+    vectorized_data_path = database_path + 'REUTERS_CORPUS_2/vectorized/'
+    if not os.path.exists(vectorized_data_path):
+        os.makedirs(vectorized_data_path)
+
+    data_list = os.listdir(data_path)
+    with open('dictionary.json') as json_data:
+        dictionary = json.load(json_data)
+    for file_name in data_list[0:10000]:
+        with open(data_path + file_name, 'r') as f:
+            sentence = f.read()
+            tokens = sentence.split(' ')
+            index_list = []
+            for word in tokens:
+                index = dictionary.get(word, 0)
+                index_list.append(index)
+            vector = np.array(index_list)
+            np_filename = vectorized_data_path + '_' + os.path.splitext(file_name)[0] + '.npy'
+            with open(np_filename, 'wb') as nf:
+                np.save(np_filename, vector)
+
+
+
+def make_matrix(database_path):
+    """
+    Not finished yet.
+    Function to load input files as vectors of indexes to stack into a matrix. But all files of different length, needed to be padded.
+    I cheched for 10000 files, the maxlen was around 4000. Maybe better to build a histogram to decide about the maxlen to pad.
     
+    """
+    path_to_files = database_path + 'REUTERS_CORPUS_2/vectorized/'
+    data_list = os.listdir(path_to_files)
+    l = []
+
+    for file_name in data_list:
+        with open(path_to_files + file_name, 'rb') as f:
+            vector = np.load(f)
+            l.append(len(vector))
+    print(max(l))
+
+
+
     
+
 
 
 
