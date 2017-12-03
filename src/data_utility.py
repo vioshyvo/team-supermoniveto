@@ -1,10 +1,10 @@
 from keras.utils.data_utils import get_file
 import os
 import zipfile
+import random
+import xml.etree.ElementTree as etree
 
-def times_two(x):
-    return 2 * x
-
+    
 def download_data(database_path = 'train/'):
     """
     Downloads the data set if it is not yet downloaded (the download path given as argument)
@@ -72,6 +72,80 @@ def read_topics(database_path):
     
     return (topics, topic_index, topic_labels)
 
+def read_xml_file(file_xml):
+    sentences = []
+    tags = []
+    read_tags = False
+    for event, elem in etree.iterparse(file_xml, events=('start', 'end')):
+        t = elem.tag
+        idx = k = t.rfind("}")
+        if idx != -1:
+            t = t[idx + 1:]
+        tname = t
+
+        if event == 'start':
+            if tname == 'codes':
+                if elem.attrib['class'] == 'bip:topics:1.0':
+                    read_tags = True
+            if tname == 'code':
+                if read_tags:
+                    tags.append(elem.attrib['code'])
+    
+        if event == 'end':
+            if tname == 'headline':
+                sentences.append(elem.text)
+            if tname == 'p':
+                sentences.append(elem.text)
+            if tname == 'codes':
+                if elem.attrib['class'] == 'bip:topics:1.0':
+                    read_tags = False
+
+    return [sentences, tags]
+    
+
+def read_news(database_path, n_train, n_test, seed = None):
+    """
+    Read a file into the training set of size n_train and a test set of size n_test. Returns following lists:
+    news_train = news items of training set as lists of sentences
+    tags_train = topics of news items of training set as lists
+    news_test = news items of test set as lists of sentences
+    tags_test = topics of news items of training set as lists
+    """
+    corpus_path = database_path + 'REUTERS_CORPUS_2/'
+    data_path = corpus_path + 'data/'
+    
+    if seed is not None:
+        random.seed(seed)
+
+    data_list = os.listdir(data_path)
+    n_samples = len(data_list)
+    random_indices = random.sample(range(n_samples), n_train + n_test)
+
+    train_indices = random_indices[0:n_train]
+    test_indices = random_indices[n_train:(n_train + n_test)]
+
+    train_list = [data_list[i] for i in train_indices]
+    test_list = [data_list[i] for i in test_indices]
+
+    news_train = []
+    tags_train = []
+    for file_name in train_list:
+        file_xml = data_path + file_name 
+        (sentences, tags) = read_xml_file(file_xml)
+        news_train.append(sentences)
+        tags_train.append(tags)
+    
+    news_test = []
+    tags_test = []
+    for file_name in test_list:
+        file_xml = data_path + file_name 
+        (sentences, tags) = read_xml_file(file_xml)
+        news_test.append(sentences)
+        tags_test.append(tags)
+
+    return (news_train, tags_train, news_test, tags_test)
+    
+    
 
 
 
