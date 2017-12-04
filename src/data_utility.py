@@ -4,7 +4,7 @@ import zipfile
 import random
 import xml.etree.ElementTree as etree
 
-    
+
 def download_data(database_path = 'train/'):
     """
     Downloads the data set if it is not yet downloaded (the download path given as argument)
@@ -14,7 +14,7 @@ def download_data(database_path = 'train/'):
     corpus_path = database_path + 'REUTERS_CORPUS_2/'
     data_path = corpus_path + 'data/'
     codes_path = corpus_path + 'codes/'
-    
+
     if not os.path.exists(database_path):
         dl_file='reuters.zip'
         dl_url='https://www.cs.helsinki.fi/u/jgpyykko/'
@@ -24,28 +24,28 @@ def download_data(database_path = 'train/'):
 
     if not os.path.exists(data_path):
         print('\n\nUnzipping data...')
-    
+
         codes_zip = corpus_path + 'codes.zip'
         with zipfile.ZipFile(codes_zip, 'r') as zip_ref:
             zip_ref.extractall(codes_path)
         os.remove(codes_zip)
-   
+
         dtds_zip = corpus_path + 'dtds.zip'
         with zipfile.ZipFile(dtds_zip, 'r') as zip_ref:
             zip_ref.extractall(corpus_path + 'dtds/')
         os.remove(dtds_zip)
-    
-        for item in os.listdir(corpus_path): 
+
+        for item in os.listdir(corpus_path):
             if item.endswith('zip'):
-                file_name = corpus_path + item 
+                file_name = corpus_path + item
                 with zipfile.ZipFile(file_name, 'r') as zip_ref:
                     zip_ref.extractall(data_path)
-                os.remove(file_name) 
-    
+                os.remove(file_name)
+
         print('Data set unzipped.')
     else:
         print('Data set already unzipped.')
-    
+
 
 def read_topics(database_path):
     """
@@ -66,10 +66,10 @@ def read_topics(database_path):
                 topic_code = splits[0]
                 topic_labels[topic_code] = ' '.join(splits[1:len(splits)])
                 topics.append(topic_code)
-    
+
     n_class = len(topics)
     topic_index = {topics[i] : i for i in range(n_class)}
-    
+
     return (topics, topic_index, topic_labels)
 
 def read_xml_file(file_xml):
@@ -90,7 +90,7 @@ def read_xml_file(file_xml):
             if tname == 'code':
                 if read_tags:
                     tags.append(elem.attrib['code'])
-    
+
         if event == 'end':
             if tname == 'headline':
                 sentences.append(elem.text)
@@ -101,7 +101,7 @@ def read_xml_file(file_xml):
                     read_tags = False
 
     return [sentences, tags]
-    
+
 
 def read_news(database_path, n_train, n_test, seed = None):
     """
@@ -113,7 +113,7 @@ def read_news(database_path, n_train, n_test, seed = None):
     """
     corpus_path = database_path + 'REUTERS_CORPUS_2/'
     data_path = corpus_path + 'data/'
-    
+
     if seed is not None:
         random.seed(seed)
 
@@ -130,15 +130,15 @@ def read_news(database_path, n_train, n_test, seed = None):
     news_train = []
     tags_train = []
     for file_name in train_list:
-        file_xml = data_path + file_name 
+        file_xml = data_path + file_name
         (sentences, tags) = read_xml_file(file_xml)
         news_train.append(sentences)
         tags_train.append(tags)
-    
+
     news_test = []
     tags_test = []
     for file_name in test_list:
-        file_xml = data_path + file_name 
+        file_xml = data_path + file_name
         (sentences, tags) = read_xml_file(file_xml)
         news_test.append(sentences)
         tags_test.append(tags)
@@ -207,7 +207,7 @@ def process_data(database_path):
 
 def build_dictionary(database_path):
     """
-    A function to build a dictionary of all words in the data with words as keys and their indexes as values. 
+    A function to build a dictionary of all words in the data with words as keys and their indexes as values.
     0 index is for all new unknown words.
     """
     data_path = database_path + 'REUTERS_CORPUS_2/tokenized/'
@@ -228,7 +228,7 @@ def build_dictionary(database_path):
 
 def vectorize_data(database_path):
     """
-    A function to modify a tokenized file into a numpy array of its word indexes. 
+    A function to modify a tokenized file into a numpy array of its word indexes.
     """
     data_path = database_path + 'REUTERS_CORPUS_2/tokenized/'
     vectorized_data_path = database_path + 'REUTERS_CORPUS_2/vectorized/'
@@ -258,7 +258,7 @@ def make_matrix(database_path):
     Not finished yet.
     Function to load input files as vectors of indexes to stack into a matrix. But all files of different length, needed to be padded.
     I cheched for 10000 files, the maxlen was around 4000. Maybe better to build a histogram to decide about the maxlen to pad.
-    
+
     """
     path_to_files = database_path + 'REUTERS_CORPUS_2/vectorized/'
     data_list = os.listdir(path_to_files)
@@ -270,13 +270,42 @@ def make_matrix(database_path):
             l.append(len(vector))
     print(max(l))
 
+def download_glove(embeddings_path = 'embeddings/'):
+    """
+    Download the glove-embeddings, pretty slow so I would recommend to download it on its own and locate it to embeddings/ folder
+    """
+    if not os.path.exists(embeddings_path):
+        os.makedirs(embeddings_path)
+    file_name = "glove.6B.zip"
+    zip_file_path = embeddings_path + file_name
+    if not os.path.exists(embeddings_path + file_name):
+        dl_url = "http://nlp.stanford.edu/data/glove.6B.zip" + file_name
+        print("Downloading GloVe embeddings 866MB")
+        curl_command = "curl -o " + zip_file_path + " \"https://nlp.stanford.edu/data/glove.6B.zip\""
+        os.system(curl_command)
+    else: print("GloVe Zip found")
 
 
-    
+def unzip_glove(embeddings_path = "embeddings/", zip_file_name = "glove.6B.zip"):
+    unzipped_names = ['glove.6B.100d.txt', 'glove.6B.200d.txt', 'glove.6B.300d.txt', 'glove.6B.50d.txt', 'glove.6B.zip']
+    if not (all([os.path.exists(embeddings_path + i) for i in unzipped_names])):
+        print("Unzipping")
+        zip_file_path = embeddings_path + zip_file_name
+        zip_ref = zipfile.ZipFile(zip_file_path, 'r')
+        zip_ref.extractall(embeddings_path)
+        zip_ref.close()
+    else: print("Already unzipped")
 
-
-
-
-
-
-
+def get_glove_embeddings(dimension = 200, embeddings_path = "embeddings/"):
+    """
+    Create a dictionary which has the form of embedding["word"] = np.array
+    Note that dimension needs to be one of [50,100,200,300]
+    """
+    files = os.listdir(embeddings_path)
+    file_name = next(file for file in files if file.endswith(str(dimension) + "d.txt"))
+    embeddings = {}
+    with open(embeddings_path + file_name) as f:
+        for line in f:
+            splits = line.split(" ")
+            embeddings[splits[0]] = np.array([float(i) for i in splits[1:]])
+    return embeddings
