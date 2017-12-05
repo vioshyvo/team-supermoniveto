@@ -3,6 +3,7 @@ import os
 import zipfile
 import random
 import xml.etree.ElementTree as etree
+import numpy as np
 
 
 def download_data(database_path = 'train/'):
