@@ -4,6 +4,10 @@ import zipfile
 import random
 import xml.etree.ElementTree as etree
 import numpy as np
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+import string
+import json
 
 
 def download_data(database_path = 'train/'):
@@ -271,9 +275,45 @@ def make_matrix(database_path):
             l.append(len(vector))
     print(max(l))
 
+def get_vectorized_data(vectorized_data_path = "train/REUTERS_CORPUS_2/vectorized/", tags_path="train/REUTERS_CORPUS_2/tags/", n_train=3000, n_test=3000, seed=None):
+    """
+    For getting a sample for training from vectorized data in order to start training
+    """
+    if seed is not None:
+        random.seed(seed)
+
+    data_list = os.listdir(tags_path)
+    n_samples = len(data_list)
+    random_indices = random.sample(range(n_samples), n_train + n_test)
+
+    train_indices = random_indices[0:n_train]
+    test_indices = random_indices[n_train:(n_train + n_test)]
+
+    train_list = [data_list[i] for i in train_indices]
+    test_list = [data_list[i] for i in test_indices]
+
+    news_train = []
+    tags_train = []
+    for file_name in train_list:
+        sentences = np.load(vectorized_data_path + "_" + file_name)#vectorized files seem to have double underscore
+        tags = np.load(tags_path + file_name)
+        news_train.append(sentences)
+        tags_train.append(tags)
+
+    news_test = []
+    tags_test = []
+    for file_name in test_list:
+        sentences = np.load(vectorized_data_path + "_" + file_name)#vectorized files seem to have double underscore
+        tags = np.load(tags_path + file_name)
+        news_test.append(sentences)
+        tags_test.append(tags)
+
+    return (news_train, tags_train, news_test, tags_test)
+
+
 def download_glove(embeddings_path = 'embeddings/'):
     """
-    Download the glove-embeddings, pretty slow so I would recommend to download it on its own and locate it to embeddings/ folder
+    Download the glove-embeddings, pretty slow so I would recommend to download it on its own and locate it to ./embeddings/ folder
     """
     if not os.path.exists(embeddings_path):
         os.makedirs(embeddings_path)
