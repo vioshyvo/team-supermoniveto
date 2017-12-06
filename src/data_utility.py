@@ -8,6 +8,13 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import string
 import json
+import codecs
+
+try:
+   import cPickle as pickle
+except:
+   import pickle
+
 
 
 def download_data(database_path = 'train/'):
@@ -167,6 +174,7 @@ def filter_text(sentences):
     return result
 
 
+
 def process_data(database_path):
     """
     File which saves all files filtered and tokenized and also saves a
@@ -180,35 +188,42 @@ def process_data(database_path):
     tags_path = corpus_path + 'tags/'
     tokenized_path = corpus_path + 'tokenized/'
 
+    tagged = False
+    tokenized = False
     if not os.path.exists(tags_path):
         os.makedirs(tags_path)
+    else:
+        print("Tags are already written")
+        tagged = True
     if not os.path.exists(tokenized_path):
         os.makedirs(tokenized_path)
-
+    else:
+        print("Tokens are already written")
+        tokenized = True
     data_list = os.listdir(data_path)
 
     (topics, topic_index, topic_labels) = read_topics(database_path)
 
-    for file_name in data_list[0:10000]:
-        file_xml = data_path + file_name
-        (sentences, tags) = read_xml_file(file_xml)
+    if not (tagged and tokenized):
+        for file_name in data_list:
+            file_xml = data_path + file_name
+            (sentences, tags) = read_xml_file(file_xml)
 
-        filtered_sentences = filter_text(sentences)
+            filtered_sentences = filter_text(sentences)
 
-        tokenized_filename = tokenized_path + '_' + os.path.splitext(file_name)[0] + '.txt'
-        tag_filename = tags_path + '_' + os.path.splitext(file_name)[0] + '.npy'
+            tokenized_filename = tokenized_path + '_' + os.path.splitext(file_name)[0] + '.txt'
+            tag_filename = tags_path + '_' + os.path.splitext(file_name)[0] + '.npy'
 
-        tag_list = []
-        for tag in tags:
-            tag_index = topic_index[tag]
-            tag_list.append(tag_index)
-        tags_array = np.array(tag_list)
+            tag_list = []
+            for tag in tags:
+                tag_index = topic_index[tag]
+                tag_list.append(tag_index)
+            tags_array = np.array(tag_list)
 
-        with open(tokenized_filename, 'w') as tkf:
-            tkf.write(' '.join(filtered_sentences))
-        with open(tag_filename, 'wb') as tgf:
-            np.save(tag_filename, tags_array)
-
+            with codecs.open(tokenized_filename, 'w', encoding="utf-8") as tkf:
+                tkf.write(' '.join(filtered_sentences))
+            with open(tag_filename, 'wb') as tgf:
+                np.save(tag_filename, tags_array)
 
 def build_dictionary(database_path):
     """
@@ -220,13 +235,13 @@ def build_dictionary(database_path):
     i = 1
     data_list = os.listdir(data_path)
     for file_name in data_list:
-        with open(data_path + file_name, 'r') as f:
+        with codecs.open(data_path + file_name, 'r', encoding="utf-8") as f:
             sentence = f.read()
             tokens = sentence.split(' ')
             for word in tokens:
                 if word not in dictionary:
                     dictionary[word] = i
-                i += 1
+                    i += 1
     with open('dictionary.json', 'w') as df:
         json.dump(dictionary, df)
 
@@ -243,8 +258,8 @@ def vectorize_data(database_path):
     data_list = os.listdir(data_path)
     with open('dictionary.json') as json_data:
         dictionary = json.load(json_data)
-    for file_name in data_list[0:10000]:
-        with open(data_path + file_name, 'r') as f:
+    for file_name in data_list:
+        with codecs.open(data_path + file_name, 'r', encoding="utf-8") as f:
             sentence = f.read()
             tokens = sentence.split(' ')
             index_list = []
@@ -252,28 +267,12 @@ def vectorize_data(database_path):
                 index = dictionary.get(word, 0)
                 index_list.append(index)
             vector = np.array(index_list)
-            np_filename = vectorized_data_path + '_' + os.path.splitext(file_name)[0] + '.npy'
-            with open(np_filename, 'wb') as nf:
-                np.save(np_filename, vector)
+            np_filename = vectorized_data_path + os.path.splitext(file_name)[0] + '.npy'
+            np.save(np_filename, vector)
 
 
 
-def make_matrix(database_path):
-    """
-    Not finished yet.
-    Function to load input files as vectors of indexes to stack into a matrix. But all files of different length, needed to be padded.
-    I cheched for 10000 files, the maxlen was around 4000. Maybe better to build a histogram to decide about the maxlen to pad.
 
-    """
-    path_to_files = database_path + 'REUTERS_CORPUS_2/vectorized/'
-    data_list = os.listdir(path_to_files)
-    l = []
-
-    for file_name in data_list:
-        with open(path_to_files + file_name, 'rb') as f:
-            vector = np.load(f)
-            l.append(len(vector))
-    print(max(l))
 
 def get_vectorized_data(vectorized_data_path = "train/REUTERS_CORPUS_2/vectorized/", tags_path="train/REUTERS_CORPUS_2/tags/", n_train=3000, n_test=3000, seed=None):
     """
@@ -337,16 +336,28 @@ def unzip_glove(embeddings_path = "embeddings/", zip_file_name = "glove.6B.zip")
         zip_ref.close()
     else: print("Already unzipped")
 
+
 def get_glove_embeddings(dimension = 200, embeddings_path = "embeddings/"):
     """
     Create a dictionary which has the form of embedding["word"] = np.array
     Note that dimension needs to be one of [50,100,200,300]
     """
+
+    pickle_file = "glove_embeddings_" + str(dimension) + ".pickle"
+    if os.path.exists(pickle_file):
+        with open(pickle_file, "rb") as f:
+            embeddings = pickle.load(f)
+            return embeddings
+
     files = os.listdir(embeddings_path)
     file_name = next(file for file in files if file.endswith(str(dimension) + "d.txt"))
     embeddings = {}
-    with open(embeddings_path + file_name) as f:
+    with codecs.open(embeddings_path + file_name, encoding="utf-8") as f:
         for line in f:
             splits = line.split(" ")
             embeddings[splits[0]] = np.array([float(i) for i in splits[1:]])
+
+    with open(pickle_file, "wb") as f:
+        pickle.dump(embeddings, f)
+
     return embeddings
