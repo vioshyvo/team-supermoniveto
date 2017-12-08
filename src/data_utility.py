@@ -163,6 +163,7 @@ def filter_text(sentences):
     result = []
     for sentence in sentences:
         translator = str.maketrans('', '', string.punctuation)
+        if(sentence is None): continue #some None sentences were found
         sentence = sentence.translate(translator)
         word_tokens = word_tokenize(sentence)
         filtered_sentence = [w.lower() for w in word_tokens if not w in stop_words]
@@ -204,8 +205,11 @@ def process_data(database_path):
 
     (topics, topic_index, topic_labels) = read_topics(database_path)
 
+    ii = 1
     if not (tagged and tokenized):
         for file_name in data_list:
+            if(ii % 10000 == 0): print(str(ii) + "/" + str(len(data_list)))
+            ii = ii + 1
             file_xml = data_path + file_name
             (sentences, tags) = read_xml_file(file_xml)
 
@@ -294,7 +298,7 @@ def get_vectorized_data(vectorized_data_path = "train/REUTERS_CORPUS_2/vectorize
     news_train = []
     tags_train = []
     for file_name in train_list:
-        sentences = np.load(vectorized_data_path + "_" + file_name)#vectorized files seem to have double underscore
+        sentences = np.load(vectorized_data_path + file_name)
         tags = np.load(tags_path + file_name)
         news_train.append(sentences)
         tags_train.append(tags)
@@ -302,7 +306,7 @@ def get_vectorized_data(vectorized_data_path = "train/REUTERS_CORPUS_2/vectorize
     news_test = []
     tags_test = []
     for file_name in test_list:
-        sentences = np.load(vectorized_data_path + "_" + file_name)#vectorized files seem to have double underscore
+        sentences = np.load(vectorized_data_path + file_name)
         tags = np.load(tags_path + file_name)
         news_test.append(sentences)
         tags_test.append(tags)
