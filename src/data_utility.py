@@ -4,20 +4,21 @@ import zipfile
 import random
 import xml.etree.ElementTree as etree
 import numpy as np
+import nltk
+# nltk.download()
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import string
-import json
 import codecs
+import json
 
 try:
-   import cPickle as pickle
+    import cPickle as pickle
 except:
-   import pickle
+    import pickle
 
 
-
-def download_data(database_path = 'train/'):
+def download_data(database_path='train/'):
     """
     Downloads the data set if it is not yet downloaded (the download path given as argument)
     does not yet exist into the path given as an argument, and unzips the data set
@@ -28,9 +29,9 @@ def download_data(database_path = 'train/'):
     codes_path = corpus_path + 'codes/'
 
     if not os.path.exists(database_path):
-        dl_file='reuters.zip'
-        dl_url='https://www.cs.helsinki.fi/u/jgpyykko/'
-        get_file(dl_file, dl_url+dl_file, cache_dir='./', cache_subdir=database_path, extract=True)
+        dl_file = 'reuters.zip'
+        dl_url = 'https://www.cs.helsinki.fi/u/jgpyykko/'
+        get_file(dl_file, dl_url + dl_file, cache_dir='./', cache_subdir=database_path, extract=True)
     else:
         print('Data set already downloaded.')
 
@@ -80,9 +81,9 @@ def read_topics(database_path):
                 topics.append(topic_code)
 
     n_class = len(topics)
-    topic_index = {topics[i] : i for i in range(n_class)}
-
+    topic_index = {topics[i]: i for i in range(n_class)}
     return (topics, topic_index, topic_labels)
+
 
 def read_xml_file(file_xml):
     sentences = []
@@ -111,11 +112,10 @@ def read_xml_file(file_xml):
             if tname == 'codes':
                 if elem.attrib['class'] == 'bip:topics:1.0':
                     read_tags = False
-
     return [sentences, tags]
 
 
-def read_news(database_path, n_train, n_test, seed = None):
+def read_news(database_path, n_train, n_test, seed=None):
     """
     Read a file into the training set of size n_train and a test set of size n_test. Returns following lists:
     news_train = news items of training set as lists of sentences
@@ -162,18 +162,17 @@ def filter_text(sentences):
     stop_words = set(stopwords.words('english'))
     result = []
     for sentence in sentences:
-        translator = str.maketrans('', '', string.punctuation)
-        if(sentence is None): continue #some None sentences were found
-        sentence = sentence.translate(translator)
-        word_tokens = word_tokenize(sentence)
-        filtered_sentence = [w.lower() for w in word_tokens if not w in stop_words]
-        for word in filtered_sentence:
-            if word.isdigit():
-                result.append('NUM')
-            else:
-                result.append(word)
+        if sentence is not None:
+            translator = str.maketrans('', '', string.punctuation)
+            sentence = sentence.translate(translator)
+            word_tokens = word_tokenize(sentence)
+            filtered_sentence = [w.lower() for w in word_tokens if not w in stop_words]
+            for word in filtered_sentence:
+                if word.isdigit():
+                    result.append('NUM')
+                else:
+                    result.append(word)
     return result
-
 
 
 def process_data(database_path):
@@ -205,11 +204,8 @@ def process_data(database_path):
 
     (topics, topic_index, topic_labels) = read_topics(database_path)
 
-    ii = 1
     if not (tagged and tokenized):
         for file_name in data_list:
-            if(ii % 10000 == 0): print(str(ii) + "/" + str(len(data_list)))
-            ii = ii + 1
             file_xml = data_path + file_name
             (sentences, tags) = read_xml_file(file_xml)
 
@@ -226,8 +222,8 @@ def process_data(database_path):
 
             with codecs.open(tokenized_filename, 'w', encoding="utf-8") as tkf:
                 tkf.write(' '.join(filtered_sentences))
-            with open(tag_filename, 'wb') as tgf:
-                np.save(tag_filename, tags_array)
+            np.save(tag_filename, tags_array)
+
 
 def build_dictionary(database_path):
     """
@@ -275,10 +271,9 @@ def vectorize_data(database_path):
             np.save(np_filename, vector)
 
 
-
-
-
-def get_vectorized_data(vectorized_data_path = "train/REUTERS_CORPUS_2/vectorized/", tags_path="train/REUTERS_CORPUS_2/tags/", n_train=3000, n_test=3000, seed=None):
+def get_vectorized_data(vectorized_data_path="train/REUTERS_CORPUS_2/vectorized/",
+                        tags_path="train/REUTERS_CORPUS_2/tags/",
+                        n_train=3000, n_test=3000, seed=None):
     """
     For getting a sample for training from vectorized data in order to start training
     """
@@ -314,7 +309,33 @@ def get_vectorized_data(vectorized_data_path = "train/REUTERS_CORPUS_2/vectorize
     return (news_train, tags_train, news_test, tags_test)
 
 
-def download_glove(embeddings_path = 'embeddings/'):
+def split_data(data_path="train/REUTERS_CORPUS_2/vectorized/",
+               test_proportion=0.1, validation_proportion=0.1, seed=None):
+    """
+    Function to split data into training, validation and test set. Returns three lists of files
+    """
+    if seed is not None:
+        random.seed(seed)
+
+    data_list = os.listdir(data_path[0:2000])
+    n_samples = len(data_list)
+    n_test = int(n_samples * test_proportion)
+    n_validation = int(n_samples * validation_proportion)
+    n_train = n_samples - (n_test + n_validation)
+
+    random_indices = random.sample(range(n_samples), n_samples)
+    train_indices = random_indices[0:n_train]
+    validation_indices = random.sample[n_train:n_validation]
+    test_indices = random_indices[n_validation:(n_samples)]
+
+    train_list = [data_list[i] for i in train_indices]
+    validation_list = [data_list[i] for i in validation_indices]
+    test_list = [data_list[i] for i in test_indices]
+
+    return train_list, validation_list, test_list
+
+
+def download_glove(embeddings_path='embeddings/'):
     """
     Download the glove-embeddings, pretty slow so I would recommend to download it on its own and locate it to ./embeddings/ folder
     """
@@ -327,10 +348,11 @@ def download_glove(embeddings_path = 'embeddings/'):
         print("Downloading GloVe embeddings 866MB")
         curl_command = "curl -o " + zip_file_path + " \"https://nlp.stanford.edu/data/glove.6B.zip\""
         os.system(curl_command)
-    else: print("GloVe Zip found")
+    else:
+        print("GloVe Zip found")
 
 
-def unzip_glove(embeddings_path = "embeddings/", zip_file_name = "glove.6B.zip"):
+def unzip_glove(embeddings_path="embeddings/", zip_file_name="glove.6B.zip"):
     unzipped_names = ['glove.6B.100d.txt', 'glove.6B.200d.txt', 'glove.6B.300d.txt', 'glove.6B.50d.txt', 'glove.6B.zip']
     if not (all([os.path.exists(embeddings_path + i) for i in unzipped_names])):
         print("Unzipping")
@@ -338,10 +360,11 @@ def unzip_glove(embeddings_path = "embeddings/", zip_file_name = "glove.6B.zip")
         zip_ref = zipfile.ZipFile(zip_file_path, 'r')
         zip_ref.extractall(embeddings_path)
         zip_ref.close()
-    else: print("Already unzipped")
+    else:
+        print("Already unzipped")
 
 
-def get_glove_embeddings(dimension = 200, embeddings_path = "embeddings/"):
+def get_glove_embeddings(dimension=200, embeddings_path="embeddings/"):
     """
     Create a dictionary which has the form of embedding["word"] = np.array
     Note that dimension needs to be one of [50,100,200,300]
