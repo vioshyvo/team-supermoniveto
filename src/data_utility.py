@@ -317,7 +317,7 @@ def split_data(data_path="train/REUTERS_CORPUS_2/vectorized/",
     if seed is not None:
         random.seed(seed)
 
-    data_list = os.listdir(data_path[0:100])
+    data_list = os.listdir(data_path)
     n_samples = len(data_list)
     n_test = int(n_samples * test_proportion)
     n_validation = int(n_samples * validation_proportion)
