@@ -317,7 +317,7 @@ def split_data(data_path="train/REUTERS_CORPUS_2/vectorized/",
     if seed is not None:
         random.seed(seed)
 
-    data_list = os.listdir(data_path[0:2000])
+    data_list = os.listdir(data_path[0:100])
     n_samples = len(data_list)
     n_test = int(n_samples * test_proportion)
     n_validation = int(n_samples * validation_proportion)
@@ -325,8 +325,9 @@ def split_data(data_path="train/REUTERS_CORPUS_2/vectorized/",
 
     random_indices = random.sample(range(n_samples), n_samples)
     train_indices = random_indices[0:n_train]
-    validation_indices = random.sample[n_train:n_validation]
-    test_indices = random_indices[n_validation:(n_samples)]
+    validation_indices = random_indices[n_train:(n_train+n_validation)]
+
+    test_indices = random_indices[(n_train+n_validation):(n_samples)]
 
     train_list = [data_list[i] for i in train_indices]
     validation_list = [data_list[i] for i in validation_indices]
