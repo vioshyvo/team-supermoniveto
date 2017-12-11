@@ -18,19 +18,33 @@ def iter_window(iterable, size):
             break
 
 
-def read_file_batch(n_class, max_text_length, corpus_path, file_batch, data_cache=None):
+def read_file_batch(n_class, max_text_length, corpus_path, file_batch, data_cache=None, bag_of_words = False, dict_size = None):
     data_path = corpus_path + 'vectorized/'
     tag_path = corpus_path + 'tags/'
     data_rows = []
     tag_rows = []
+    
+    n_row = len(file_batch)
+    if bag_of_words:
+        data_matrix = np.zeros((n_row, dict_size), dtype = np.int32)
+    
+    c = 0
     for f in file_batch:
         if data_cache:
             data = data_cache['data'][f]
-            data = sequence.pad_sequences([data], maxlen=max_text_length,
+            if bag_of_words:
+                data_matrix[c, list(data)] = 1 
+                c += 1
+            else:
+                data = sequence.pad_sequences([data], maxlen=max_text_length,
                                           padding='post')
         else:
             data = np.load(data_path + f)
-            data = sequence.pad_sequences([data], maxlen=max_text_length, padding='post')
+            if bag_of_words:
+                data_matrix[c, list(data)] = 1 
+                c += 1
+            else:
+                data = sequence.pad_sequences([data], maxlen=max_text_length, padding='post')
         data_rows.append(data)
 
         if data_cache:
@@ -41,17 +55,19 @@ def read_file_batch(n_class, max_text_length, corpus_path, file_batch, data_cach
         tag_rows.append(tags)
 
     n_rows = len(tag_rows)
-    data_matrix = np.vstack(data_rows)
+    
+    if not bag_of_words:
+        data_matrix = np.vstack(data_rows)
     tags_matrix = np.zeros((n_rows, n_class))
     for ii in range(n_rows):
         tags_matrix[ii, list(tag_rows[ii])] = 1
     return data_matrix, tags_matrix
 
 
-def text_generator(batch_size, n_class, max_text_length, corpus_path, files_to_use, data_cache=None):
+def text_generator(batch_size, n_class, max_text_length, corpus_path, files_to_use, data_cache=None, bag_of_words = False, dict_size = None):
     while True:
         for file_batch in iter_window(files_to_use, batch_size):
-            data_matrix, tags_matrix = read_file_batch(n_class, max_text_length, corpus_path, file_batch, data_cache)
+            data_matrix, tags_matrix = read_file_batch(n_class, max_text_length, corpus_path, file_batch, data_cache, bag_of_words, dict_size)
             yield (data_matrix, tags_matrix)
     pass
 
