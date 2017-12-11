@@ -18,17 +18,26 @@ def iter_window(iterable, size):
             break
 
 
-def read_file_batch(n_class, max_text_length, corpus_path, file_batch):
+def read_file_batch(n_class, max_text_length, corpus_path, file_batch, data_cache=None):
     data_path = corpus_path + 'vectorized/'
     tag_path = corpus_path + 'tags/'
     data_rows = []
     tag_rows = []
     for f in file_batch:
-        data = np.load(data_path + f)
-        data = sequence.pad_sequences([data], maxlen=max_text_length, padding='post')
+        if data_cache:
+            data = data_cache['data'][f]
+            data = sequence.pad_sequences([data], maxlen=max_text_length,
+                                          padding='post')
+        else:
+            data = np.load(data_path + f)
+            data = sequence.pad_sequences([data], maxlen=max_text_length, padding='post')
         data_rows.append(data)
 
-        tags = np.load(tag_path + f)
+        if data_cache:
+            tags = data_cache['tags'][f]
+        else:
+            tags = np.load(tag_path + f)
+
         tag_rows.append(tags)
 
     n_rows = len(tag_rows)
@@ -39,10 +48,10 @@ def read_file_batch(n_class, max_text_length, corpus_path, file_batch):
     return data_matrix, tags_matrix
 
 
-def text_generator(batch_size, n_class, max_text_length, corpus_path, files_to_use):
+def text_generator(batch_size, n_class, max_text_length, corpus_path, files_to_use, data_cache=None):
     while True:
         for file_batch in iter_window(files_to_use, batch_size):
-            data_matrix, tags_matrix = read_file_batch(n_class, max_text_length, corpus_path, file_batch)
+            data_matrix, tags_matrix = read_file_batch(n_class, max_text_length, corpus_path, file_batch, data_cache)
             yield (data_matrix, tags_matrix)
     pass
 

@@ -271,6 +271,25 @@ def vectorize_data(database_path):
             np.save(np_filename, vector)
 
 
+def coalesce_data(database_path):
+    result = {
+        'data': {},
+        'tags': {}
+    }
+
+    vectorized_path = database_path + 'REUTERS_CORPUS_2/vectorized/'
+    tags_path = database_path + 'REUTERS_CORPUS_2/tags/'
+    for i, file_name in enumerate(os.listdir(vectorized_path)):
+        if i % 10000 == 0:
+            print(i)
+
+        result['data'][file_name] = np.load(vectorized_path + file_name)
+        result['tags'][file_name] = np.load(tags_path + file_name)
+
+    with open(database_path + 'REUTERS_CORPUS_2/coalesced_data.pickle', 'wb') as f:
+        pickle.dump(result, f)
+
+
 def get_vectorized_data(vectorized_data_path="train/REUTERS_CORPUS_2/vectorized/",
                         tags_path="train/REUTERS_CORPUS_2/tags/",
                         n_train=3000, n_test=3000, seed=None):
