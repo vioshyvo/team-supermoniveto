@@ -6,5 +6,6 @@ src/__pycache__/*
 embeddings/
 dictionary.json
 glove_embeddings_200.pickle
+*.pickle
 
 .idea/
