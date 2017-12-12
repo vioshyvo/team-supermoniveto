@@ -291,21 +291,25 @@ def vectorize_data(database_path):
     vectorized_data_path = database_path + 'REUTERS_CORPUS_2/vectorized/'
     if not os.path.exists(vectorized_data_path):
         os.makedirs(vectorized_data_path)
-
-    data_list = os.listdir(data_path)
-    with open('dictionary.json') as json_data:
-        dictionary = json.load(json_data)
-    for file_name in data_list:
-        with codecs.open(data_path + file_name, 'r', encoding="utf-8") as f:
-            sentence = f.read()
-            tokens = sentence.split(' ')
-            index_list = []
-            for word in tokens:
-                index = dictionary.get(word, 0)
-                index_list.append(index)
-            vector = np.array(index_list)
-            np_filename = vectorized_data_path + os.path.splitext(file_name)[0] + '.npy'
-            np.save(np_filename, vector)
+        print('Vectorizing data...')
+        data_list = os.listdir(data_path)
+        with open('dictionary.json') as json_data:
+            dictionary = json.load(json_data)
+        for i, file_name in enumerate(data_list):
+            if i % 10000 == 0:
+                print(i)
+            with codecs.open(data_path + file_name, 'r', encoding="utf-8") as f:
+                sentence = f.read()
+                tokens = sentence.split(' ')
+                index_list = []
+                for word in tokens:
+                    index = dictionary.get(word, 0)
+                    index_list.append(index)
+                vector = np.array(index_list)
+                np_filename = vectorized_data_path + os.path.splitext(file_name)[0] + '.npy'
+                np.save(np_filename, vector)
+    else:
+        print('Data set already vectorized.')
 
 
 def coalesce_data(database_path):

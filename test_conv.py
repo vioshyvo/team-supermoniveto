@@ -44,7 +44,6 @@ test_path = 'test/'
 #    build_dictionary(database_path)
 #    vectorize_data(database_path)
 #    coalesce_data(database_path)
-download_test(test_path)
 
 if os.path.exists(word_to_index_pickle_file):
     with open(word_to_index_pickle_file, "rb") as f:
