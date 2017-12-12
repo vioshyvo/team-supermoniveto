@@ -2,7 +2,7 @@
 #nltk.download('stopwords')
 #nltk.download('punkt')
 
-from src.data_utility import read_topics, get_glove_embeddings, split_data
+from src.data_utility import read_topics, get_glove_embeddings, split_data, download_test
 import json
 import numpy as np
 import os
@@ -35,6 +35,7 @@ database_path = 'train/'
 embeddings_path = 'embeddings/'
 word_to_index_pickle_file = "dictionary.pickle"
 corpus_path = "train/REUTERS_CORPUS_2/"
+test_path = 'test/'
 
 #    download_data(database_path)
 #    download_glove(embeddings_path)
@@ -43,6 +44,7 @@ corpus_path = "train/REUTERS_CORPUS_2/"
 #    build_dictionary(database_path)
 #    vectorize_data(database_path)
 #    coalesce_data(database_path)
+download_test(test_path)
 
 if os.path.exists(word_to_index_pickle_file):
     with open(word_to_index_pickle_file, "rb") as f:

@@ -17,6 +17,33 @@ try:
 except:
     import pickle
 
+def download_test(database_path='test/'):
+    file_list = ['19970410-test.zip',
+                 '19970420-test.zip',
+                 '19970430-test.zip',
+                 '19970510-test.zip',
+                 '19970520-test.zip',
+                 '19970530-test.zip',
+                 '19970609-test.zip',
+                 '19970619-test.zip',
+                 '19970629-test.zip',
+                 '19970709-test.zip',
+                 '19970719-test.zip',
+                 '19970729-test.zip',
+                 '19970808-test.zip',
+                 '19970818-test.zip']
+    
+    if not os.path.exists(database_path):
+        corpus_path = database_path + 'REUTERS_CORPUS_2/'
+        data_path = corpus_path + 'data/'
+        dl_url = 'http://bsnlp-2017.cs.helsinki.fi/REUTERSX/REUTERS_CORPUS_2_TEST_strip/'
+        
+        for dl_file in file_list:
+                get_file(dl_file, dl_url + dl_file, cache_dir='./', cache_subdir=data_path, extract=True)
+        print('\n Data set downloaded and unzipped.')
+        
+    else:
+        print('Data set already downloaded')
 
 def download_data(database_path='train/'):
     """
