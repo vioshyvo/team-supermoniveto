@@ -17,6 +17,16 @@ def iter_window(iterable, size):
                 yield result
             break
 
+def read_test_batch(max_text_length, database_path = 'test/'):
+    vectorized_path = database_path + 'REUTERS_CORPUS_2/vectorized/'
+    file_batch = os.listdir(vectorized_path)
+    data_rows = []
+    for f in file_batch:
+        data = np.load(vectorized_path + f)
+        data = sequence.pad_sequences([data], maxlen=max_text_length, padding='post')
+        data_rows.append(data)
+    return np.vstack(data_rows)
+
 
 def read_file_batch(n_class, max_text_length, corpus_path, file_batch, data_cache=None, bag_of_words = False, dict_size = None):
     data_path = corpus_path + 'vectorized/'
