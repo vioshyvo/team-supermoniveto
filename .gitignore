@@ -8,5 +8,6 @@ embeddings/
 dictionary.json
 glove_embeddings_200.pickle
 *.pickle
+results.txt
 
 .idea/
