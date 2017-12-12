@@ -89,11 +89,6 @@ if __name__== '__main__':
     #vectorize_data(database_path)
     #coalesce_data(database_path)
 
-    download_test(test_database_path)
-    process_data(test_database_path)
-    # vectorize_data(database_path)
-    
-
     if os.path.exists(word_to_index_pickle_file):
         with open(word_to_index_pickle_file, "rb") as f:
             word_to_index = pickle.load(f)
@@ -179,17 +174,17 @@ if __name__== '__main__':
     # F1 score:  0.84929320338
 
     #3
-    # model.add(Conv1D(300, 4, activation='relu'))
-    # model.add(Conv1D(100, 6, activation='relu'))
-    # model.add(MaxPooling1D(pool_size=3))
-    # model.add(Conv1D(100, 10, activation='relu'))
-    # model.add(Flatten())
-    # model.add(Dense(256))
-    # model.add(BatchNormalization())
-    # model.add(Activation('relu'))
-    # model.add(Dropout(0.5))
-    # model.add(Dense(n_class, activation='sigmoid'))
-    # model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.add(Conv1D(300, 4, activation='relu'))
+    model.add(Conv1D(100, 6, activation='relu'))
+    model.add(MaxPooling1D(pool_size=3))
+    model.add(Conv1D(100, 10, activation='relu'))
+    model.add(Flatten())
+    model.add(Dense(256))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(n_class, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     # 
     # 5 epochs, batch size=256, Glove=300, unknown words handling:
     # F1 score:  0.849875387055
@@ -234,7 +229,9 @@ if __name__== '__main__':
     #model.add(LSTM(64))
     #model.add(Dense(n_class, activation='sigmoid'))
     #model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-    #model.summary()
+
+    model.summary()
+
     #model.fit(np.array(news_train), np.array(tags_train_matrix), epochs=3, batch_size=64)
 
     with open(corpus_path + 'coalesced_data.pickle', 'rb') as f:
@@ -262,3 +259,4 @@ if __name__== '__main__':
     prob_test = model.predict(np.array(test_seq_matrix), batch_size=batch_size)
     pred_test = np.array(prob_test) > 0.5
     print('F1 score: ', f1_score(news_tags_matrix, pred_test, average='micro'))
+    model.save("best_model.h5") 

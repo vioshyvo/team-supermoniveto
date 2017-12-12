@@ -13,9 +13,11 @@ We tried vast range of different models ranging from bag of words multilayer per
 different advanced techniques such as CNN and LSTM.
 
 We looked at the distribution of tags in the released data and found out that some of the topic are mostly presented
- while others are never appear. Those rare tags would be difficult to learn to predict. :
+ while others are never appear or appear very rare. Rare tags would be difficult to learn to predict.
 ![](Figure_1.png)
 
+Later we found out that tags are in hierarchical relations which explains why some tags are over-represented and we didn't
+use this information for our experiments.
 
 First, we preprocessed the data, i.e. parsed xml-files, tokenized all texts, removed stop-words and punctuation,
 lowercased all words and replaced numbers with NUM tag (maybe it was not a good idea because Glove has embeddings
@@ -43,11 +45,17 @@ saved in comments in text_processing.py module. Our best model has the following
 
 ![](CNN_conf.png)
 
- Being curious, we also expanded our views outside of the course and did some trials
-  with combination of CNN and LSTM where first comes the convolutions and then the LSTM is applied for the convolved layers.
-  Final two models that we tried were bidirectional LSTM, which is used for the sequence classification when the whole sequence
-  is known, and gated recurrent unit (GRU) which should be similar to LSTM but have faster training as it is missing some
-  of the gates from LSTM.
+The best model have got the F score equal to 0.8556. The loss and accuracy during training and validation presented on the
+figure below.
+
+![](locc_ass.png)
+
+Being curious, we also expanded our views outside of the course and did some trials
+with combination of CNN and LSTM where first comes the convolutions and then the LSTM is applied for the convolved layers.
+Final two models that we tried were bidirectional LSTM, which is used for the sequence classification when the whole sequence
+is known, and gated recurrent unit (GRU) which should be similar to LSTM but have faster training as it is missing some
+of the gates from LSTM.
+
 
 ### Future work
 
