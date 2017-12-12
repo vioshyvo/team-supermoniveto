@@ -48,7 +48,7 @@ saved in comments in text_processing.py module. Our best model has the following
 The best model have got the F score equal to 0.8556. The loss and accuracy during training and validation presented on the
 figure below.
 
-![](locc_ass.png)
+![](locc_acc.png)
 
 Being curious, we also expanded our views outside of the course and did some trials
 with combination of CNN and LSTM where first comes the convolutions and then the LSTM is applied for the convolved layers.
