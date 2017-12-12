@@ -106,6 +106,11 @@ if __name__== '__main__':
     batch_size = 256
     max_news_length = 300
     (topics, topic_index, topic_labels) = read_topics(database_path)
+    
+    index2topic = dict()
+    for k, v in topic_index.items():
+        index2topic[v] = k
+     
     n_class = len(topics)
 
     embedding_size = 300

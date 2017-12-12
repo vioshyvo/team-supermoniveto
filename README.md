@@ -5,20 +5,78 @@ This repo contains a deep learning course final project of team **supermoniveto*
 - Ville Hyvönen
 - Anisia Katinskaia
 
-![](veikkaus.JPG)
-
 ### Summary
 
-The data we chose for our group was the [text data](https://keras.io/datasets/#reuters-newswire-topics-classification). In the fashion of the course we used deep learning to learn the problem and do predictions. We tried vast range of different models ranging from bag of words multilayer perceptron (MLP) to a combination of different advanced techniques such as CNN and LSTM.
+The data we chose for our group was the [text data](https://keras.io/datasets/#reuters-newswire-topics-classification).
+In the fashion of the course we used deep learning to learn the problem and do predictions.
+We tried vast range of different models ranging from bag of words multilayer perceptron (MLP) to a combination of
+different advanced techniques such as CNN and LSTM.
 
-As the data preprocessing step is very important we gave pretty careful attention to it.
+We looked at the distribution of tags in the released data and found out that some of the topic are mostly presented
+ while others are never appear. Those rare tags would be difficult to learn to predict. :
+![](Figure_1.png)
 
-Anisia...
 
-For the word embeddings we used the pre-trained [GloVe Embeddings](https://nlp.stanford.edu/projects/glove/). Most of the modelling is done with 200 dimensional representations and the competition model training was done with 300 dimensional representations.
+First, we preprocessed the data, i.e. parsed xml-files, tokenized all texts, removed stop-words and punctuation,
+lowercased all words and replaced numbers with NUM tag (maybe it was not a good idea because Glove has embeddings
+for numbers, it might be useful to try without such replacement).
 
-Most of the model verification was done with 20K random sample from the data. We used a 10K/10K split in order for the test set to generalize as well as possible and still keep the training times reasonable for even CPU. First trial was a quick MLP after preprocessing step to ensure that we have one working model. Then after preprocessing we started to experiment with the more advanced techniques involving an embedding layer to our network.
-First we tried the last topic of the course, LSTM and its combinations. However during the testing we quickly realized that the traditional CNN was working much better. As it seemed that the CNN was the way to go we experimented a lot of different sets of hyperparameters by hand. After exhaustive search for the best hyper parameters we had some idea of what would be our chosen model for the competition. Being curious, we also expanded our views outside of the course and did some trials with combination of CNN and LSTM where first comes the convolutions and then the LSTM is applied for the convolved layers. Final two models that we tried were bidirectional LSTM, which is used for the sequence classification when the whole sequence is known, and gated recurrent unit (GRU) which should be similar to LSTM but have faster training as it is missing some of the gates from LSTM.
+
+For the word embeddings we used the pre-trained [GloVe Embeddings](https://nlp.stanford.edu/projects/glove/).
+Most of the modelling is done with 200 dimensional representations and the competition model training was done with
+300 dimensional representations. For words which are not presented in Glove embedding set we initialised vectors
+of random numbers from normal dictribution.
+
+Some verification of the model was done with 20K random sample from the data, a bunch of experiments with CNN and
+several experiments with LSTM were performed on the whole data. Experiments with combination of CNN and LSTM were done on
+20K sample from the data.
+10% of the data was used for validation and another 10% for testing. Cross-validation on the whole data was very time
+consuming as well as training LSTM models.
+
+During the testing we quickly realized that CNN was showing much better f score than any other models. As it seemed that
+the CNN was the way to go we experimented a lot of differentsets of hyperparameters by hand (batch size, number of epochs,
+dimensionality of embeddigns, with/without random initialisation for words not presented in Glove embedding set, number of
+convolutional layers, number and sizes of filters, size of dropout, with/without batch normalization, pool size, size and
+number of dense layers). After exhaustive search for the best hyperparameters we had some idea of what would be
+our chosen model for the competition. Most of the experiments with hyperparameters and their results (f scores) are
+saved in comments in text_processing.py module. Our best model has the following configuration:
+
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+embedding_1 (Embedding)      (None, 300, 300)          120814800
+_________________________________________________________________
+conv1d_1 (Conv1D)            (None, 297, 300)          360300
+_________________________________________________________________
+conv1d_2 (Conv1D)            (None, 292, 100)          180100
+_________________________________________________________________
+max_pooling1d_1 (MaxPooling1 (None, 97, 100)           0
+_________________________________________________________________
+conv1d_3 (Conv1D)            (None, 88, 100)           100100
+_________________________________________________________________
+flatten_1 (Flatten)          (None, 8800)              0
+_________________________________________________________________
+dense_1 (Dense)              (None, 256)               2253056
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 256)               1024
+_________________________________________________________________
+activation_1 (Activation)    (None, 256)               0
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 256)               0
+_________________________________________________________________
+dense_2 (Dense)              (None, 126)               32382
+=================================================================
+Total params: 123,741,762
+Trainable params: 2,926,450
+Non-trainable params: 120,815,312
+_________________________________________________________________
+
+
+ Being curious, we also expanded our views outside of the course and did some trials
+  with combination of CNN and LSTM where first comes the convolutions and then the LSTM is applied for the convolved layers.
+  Final two models that we tried were bidirectional LSTM, which is used for the sequence classification when the whole sequence
+  is known, and gated recurrent unit (GRU) which should be similar to LSTM but have faster training as it is missing some
+  of the gates from LSTM.
 
 ### Future work
 
