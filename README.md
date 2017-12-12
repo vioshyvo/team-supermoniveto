@@ -59,7 +59,31 @@ of the gates from LSTM.
 
 ### Future work
 
-During the project we discussed a lot and unfortunately some of the ideas were left out because of lack of time. There were bad ideas, decent ideas and great ideas. Some of the good ideas are presented below.
-On the preprocessing side we could have done some word n-gram modelling. That is, to concatenate some combination of n words that often occur together and have a different meaning when they are presented together rather than separately. Such words could be mapped to one index of dictionary instead of mapping them to separate words. Such words could be ice hockey for 2-gram, golden state warriors for 3-gram and so on. It would probably be enough to look at the 2-grams and 3-grams only as they would capture most of the structure in everyday language.
-Reading the notes from Moodle about the hierarchy of the tags, we also discussed that in order to capture the best result in the tags we should follow the tree structure also in modelling. One approach could be that we first predict which one of the "main" topics does an article belong, and then recursively go deeper with the predictions taking into account the results achieved higher in the hirerchy of tags.
-Because there is hierarchy, we could also do some rule based verification after our current model. That is we could adjust our predictions by the tree structure. For example if we predict a tag that is in the same branch of the tag tree but we are not predicting its parents, we should probably also predict the parent, or adjust the prediction so that we do not predict the child. These could be handled whichever way, but the most important thing would avoid contradictions in the tree structure.
+During the project we discussed a lot and unfortunately some of the ideas were left out because of lack of time.
+There were bad ideas, decent ideas and great ideas. Some of the good ideas are presented below.
+
+?? >>Here you talk about multi-word expressions: first they neede to be detected (like ice hockey) which is a separate
+complicated task, after their detection their can be represented as on vector in the meaning space. It is a very useful
+task to solve to any kind of research questions with text data. What I was proposing is to use not word2vec or Glove but
+fastText n-gram embeddings which can be combined into embeddings of particular words, it could have helped with OOV words.
+<<<
+
+On the preprocessing side we could have done some word n-gram modelling.
+That is, to concatenate some combination of n words that often occur together and have a different meaning when
+ they are presented together rather than separately. Such words could be mapped to one index of dictionary instead
+  of mapping them to separate words. Such words could be ice hockey for 2-gram, golden state warriors for 3-gram and so on.
+   It would probably be enough to look at the 2-grams and 3-grams only as they would capture most of the structure
+   in everyday language.
+
+Reading the notes from Moodle about the hierarchy of the tags, we also discussed that in order to capture the best result
+in the tags we should follow the tree structure also in modelling. One approach could be that we first predict which one
+of the "main" topics does an article belong, and then recursively go deeper with the predictions taking into account
+the results achieved higher in the hirerchy of tags. Because there is hierarchy, we could also do some rule based
+verification after our current model. That is we could adjust our predictions by the tree structure.
+For example if we predict a tag that is in the same branch of the tag tree but we are not predicting its parents,
+we should probably also predict the parent, or adjust the prediction so that we do not predict the child.
+These could be handled whichever way, but the most important thing would avoid contradictions in the tree structure.
+
+A more simple thing to try is to use ensambles of different models.
+
+More ideas?
