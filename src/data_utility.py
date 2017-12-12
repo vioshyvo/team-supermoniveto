@@ -44,6 +44,11 @@ def download_test(database_path='test/'):
         
         for dl_file in file_list:
                 get_file(dl_file, dl_url + dl_file, cache_dir='./', cache_subdir=data_path, extract=True)
+                file_name = data_path + dl_file
+                with zipfile.ZipFile(file_name, 'r') as zip_ref:
+                    zip_ref.extractall(data_path)
+                os.remove(file_name)
+
         print('\n Data set downloaded and unzipped.')
         
     else:
