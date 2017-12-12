@@ -41,36 +41,7 @@ number of dense layers). After exhaustive search for the best hyperparameters we
 our chosen model for the competition. Most of the experiments with hyperparameters and their results (f scores) are
 saved in comments in text_processing.py module. Our best model has the following configuration:
 
-_________________________________________________________________
-Layer (type)                 Output Shape              Param #
-=================================================================
-embedding_1 (Embedding)      (None, 300, 300)          120814800
-_________________________________________________________________
-conv1d_1 (Conv1D)            (None, 297, 300)          360300
-_________________________________________________________________
-conv1d_2 (Conv1D)            (None, 292, 100)          180100
-_________________________________________________________________
-max_pooling1d_1 (MaxPooling1 (None, 97, 100)           0
-_________________________________________________________________
-conv1d_3 (Conv1D)            (None, 88, 100)           100100
-_________________________________________________________________
-flatten_1 (Flatten)          (None, 8800)              0
-_________________________________________________________________
-dense_1 (Dense)              (None, 256)               2253056
-_________________________________________________________________
-batch_normalization_1 (Batch (None, 256)               1024
-_________________________________________________________________
-activation_1 (Activation)    (None, 256)               0
-_________________________________________________________________
-dropout_1 (Dropout)          (None, 256)               0
-_________________________________________________________________
-dense_2 (Dense)              (None, 126)               32382
-=================================================================
-Total params: 123,741,762
-Trainable params: 2,926,450
-Non-trainable params: 120,815,312
-_________________________________________________________________
-
+![](CNN_conf.png)
 
  Being curious, we also expanded our views outside of the course and did some trials
   with combination of CNN and LSTM where first comes the convolutions and then the LSTM is applied for the convolved layers.
