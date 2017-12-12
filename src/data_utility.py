@@ -18,6 +18,10 @@ except:
     import pickle
 
 def download_test(database_path='test/'):
+    """
+    Downloads and unzips the test set if the download dir given as parameter
+    does not yet exist.
+    """
     file_list = ['19970410-test.zip',
                  '19970420-test.zip',
                  '19970430-test.zip',
@@ -116,29 +120,30 @@ def read_xml_file(file_xml):
     sentences = []
     tags = []
     read_tags = False
-    for event, elem in etree.iterparse(file_xml, events=('start', 'end')):
-        t = elem.tag
-        idx = k = t.rfind("}")
-        if idx != -1:
-            t = t[idx + 1:]
-        tname = t
-
-        if event == 'start':
-            if tname == 'codes':
-                if elem.attrib['class'] == 'bip:topics:1.0':
-                    read_tags = True
-            if tname == 'code':
-                if read_tags:
-                    tags.append(elem.attrib['code'])
-
-        if event == 'end':
-            if tname == 'headline':
-                sentences.append(elem.text)
-            if tname == 'p':
-                sentences.append(elem.text)
-            if tname == 'codes':
-                if elem.attrib['class'] == 'bip:topics:1.0':
-                    read_tags = False
+    try:            
+        for event, elem in etree.iterparse(file_xml, events=('start', 'end')):
+                t = elem.tag
+                idx = k = t.rfind("}")
+                if idx != -1:
+                    t = t[idx + 1:]
+                tname = t
+                if event == 'start':
+                    if tname == 'codes':
+                        if elem.attrib['class'] == 'bip:topics:1.0':
+                            read_tags = True
+                    if tname == 'code':
+                        if read_tags:
+                            tags.append(elem.attrib['code'])
+                if event == 'end':
+                    if tname == 'headline':
+                        sentences.append(elem.text)
+                    if tname == 'p':
+                        sentences.append(elem.text)                    
+                    if tname == 'codes':
+                        if elem.attrib['class'] == 'bip:topics:1.0':
+                            read_tags = False
+    except:
+        print('ParseError in file ', file_xml)
     return [sentences, tags]
 
 
@@ -202,7 +207,7 @@ def filter_text(sentences):
     return result
 
 
-def process_data(database_path):
+def process_data(database_path, read_tags = True):
     """
     File which saves all files filtered and tokenized and also saves a
     file with np.array including all tags for a file. This is done for a purpose not to re-analyze all data again.
@@ -217,8 +222,13 @@ def process_data(database_path):
 
     tagged = False
     tokenized = False
-    if not os.path.exists(tags_path):
+    
+    if database_path == 'test/':
+        read_tags = False
+
+    if not os.path.exists(tags_path) and read_tags:
         os.makedirs(tags_path)
+        (topics, topic_index, topic_labels) = read_topics(database_path)
     else:
         print("Tags are already written")
         tagged = True
@@ -227,9 +237,7 @@ def process_data(database_path):
     else:
         print("Tokens are already written")
         tokenized = True
-    data_list = os.listdir(data_path)
-
-    (topics, topic_index, topic_labels) = read_topics(database_path)
+    data_list = [f for f in os.listdir(data_path) if f.endswith('xml')]
 
     if not (tagged and tokenized):
         for file_name in data_list:
@@ -240,16 +248,18 @@ def process_data(database_path):
 
             tokenized_filename = tokenized_path + '_' + os.path.splitext(file_name)[0] + '.txt'
             tag_filename = tags_path + '_' + os.path.splitext(file_name)[0] + '.npy'
+            
+            if not tagged:
+                tag_list = []
+                for tag in tags:
+                    tag_index = topic_index[tag]
+                    tag_list.append(tag_index)
+                tags_array = np.array(tag_list)
+                np.save(tag_filename, tags_array)
 
-            tag_list = []
-            for tag in tags:
-                tag_index = topic_index[tag]
-                tag_list.append(tag_index)
-            tags_array = np.array(tag_list)
-
+            
             with codecs.open(tokenized_filename, 'w', encoding="utf-8") as tkf:
                 tkf.write(' '.join(filtered_sentences))
-            np.save(tag_filename, tags_array)
 
 
 def build_dictionary(database_path):
