@@ -20,6 +20,7 @@ def iter_window(iterable, size):
 def read_test_batch(max_text_length, database_path = 'test/'):
     vectorized_path = database_path + 'REUTERS_CORPUS_2/vectorized/'
     file_batch = os.listdir(vectorized_path)
+    file_batch.sort()
     data_rows = []
     for f in file_batch:
         data = np.load(vectorized_path + f)

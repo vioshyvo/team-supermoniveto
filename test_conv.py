@@ -2,7 +2,7 @@
 #nltk.download('stopwords')
 #nltk.download('punkt')
 
-from src.data_utility import read_topics, get_glove_embeddings, split_data, download_test
+from src.data_utility import read_topics, get_glove_embeddings, split_data
 import json
 import numpy as np
 import os
@@ -110,6 +110,7 @@ with open(corpus_path + 'coalesced_data.pickle', 'rb') as f:
     data_cache = pickle.load(f)
 
 train_files, validation_files, test_files = split_data()
+train_files = train_files[0:10000]
 print(len(train_files))
 train_generator = text_generator(batch_size, n_class, max_news_length, corpus_path, train_files, data_cache)
 train_steps = round(len(train_files) / batch_size)
@@ -125,3 +126,58 @@ test_seq_matrix, news_tags_matrix = read_file_batch(n_class, max_news_length, co
 prob_test = model.predict(np.array(test_seq_matrix), batch_size=batch_size)
 pred_test = np.array(prob_test) > 0.5
 print('F1 score: ', f1_score(news_tags_matrix, pred_test, average='micro'))
+
+###--------------- test that test data preprocessing works correctly-------------###
+
+import os 
+import shutil
+import random
+from src.data_utility import process_data, vectorize_data
+
+# import fake test set for which we know the true labels
+n_test = 10000
+test_path2 = 'test2/'
+input_path = 'train/REUTERS_CORPUS_2/data/'
+output_path = test_path2 + 'REUTERS_CORPUS_2/data/'
+
+data_list = os.listdir(input_path)
+n_samples = len(data_list)
+random_indices = random.sample(range(n_samples), n_test)
+file_list = [data_list[i] for i in random_indices]
+os.makedirs(output_path) 
+for file_name in file_list:
+    shutil.copy(input_path + file_name, output_path)
+
+data_list2 = os.listdir(output_path)
+file_list2 = data_list2
+file_list[0:5]
+file_list2[0:5]
+
+(topics, topic_index, topic_labels) = read_topics(database_path)
+n_class = len(topics)
+corpus_path = "train/REUTERS_CORPUS_2/"
+
+process_data(test_path2, False)
+vectorize_data(test_path2)
+from text_generator import read_test_batch
+
+### ------------------------------- ###
+# input trained model here
+### ------------------------------- ###
+
+file_list3 = os.listdir(test_path2 + 'REUTERS_CORPUS_2/vectorized/')
+file_list3.sort()
+file_list3[0:5]
+
+# read correct tags for the "test" set
+t, news_tags_matrix = read_file_batch(n_class, max_news_length, corpus_path, file_list3)
+
+max_news_length = 300
+test_seq_matrix = read_test_batch(max_news_length, test_path2)
+
+prob_test = model.predict(np.array(test_seq_matrix), batch_size=256)
+pred_test = np.array(prob_test) > 0.5
+print('F1 score: ', f1_score(news_tags_matrix, pred_test, average='micro'))
+# F1 score:  0.599007594937 with 10 epochs 
+# --> seems to work
+
