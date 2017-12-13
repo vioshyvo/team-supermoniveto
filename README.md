@@ -6,20 +6,20 @@ This repo contains a deep learning course final project of team **supermoniveto*
 - Anisia Katinskaia
 
 
-### Navigation
-#### Pre-processing
-
-* [src/data_utility.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/src/data_utility.py) contains the pre-processing functions such as downloading and parsing the data and tags. It also has functions to clean the texts and vectorise them.
-
-#### Helpers
-* [tags_dist.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/tags_dist.py) contains a function to plot the distribution of the tags.
-* [text_generator.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_generator.py) helper for training a network in batches.
-
+### Navigtion
 
 #### Testing models
-* [text_processing.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_processing.py) python file for constructing and testing different models.
-* [text_projectVilleT.ipynb](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_projectVilleT.ipynb) python notebook for more tested models.
+* [text_processing.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_processing.py) python file for constructing and testing different CNN models. **Contains the final model.**
+* [text_projectVilleT.ipynb](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_projectVilleT.ipynb) python notebook for testing LSTM models.
+* [test_onehot.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/test_onehot.py) python file for testing MLP with bag-of-words presentation with whole data. **Contains the simple MLP model.**
+* [test_project.ipynb](https://github.com/vioshyvo/team-supermoniveto/blob/master/test_project.ipynb) notebook with initial modeling with bag-of-words MLP with 10K/10K train/test split.
+* [test_conv.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/test_conv.py) python script with initial tests with a simple CNN with multiple parallel CNN layers.
 
+#### Pre-processing & helpers
+
+* [src/data_utility.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/src/data_utility.py) contains the preprocessing functions such as downloading and parsing the data and tags. It also has functions to clean the texts and vectorize them.
+* [tags_dist.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/tags_dist.py) contains a function to plot the distribution of the tags.
+* [text_generator.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_generator.py) helper for training a network in batches.
 
 #### Delivering the results
 * [read_test.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/read_test.py) python script for reading the test set and predicting its outcome with the best model.
@@ -33,7 +33,7 @@ We tried a vast range of different models ranging from the multilayer perceptron
 
 We looked at the distribution of tags in the released data and found out that some of the topics are present most of the samples
  while others are never present, or appear very seldom. Rare tags would be difficult to learn to predict.
-![](Figure_1.png)
+![](images/Figure_1.png)
 
 Later we found out that tags are in hierarchical relations which explains why some tags are over-represented and we didn't
 use this information for our experiments.
@@ -67,11 +67,11 @@ number of dense layers). After exhaustive search for the best hyperparameters we
 our chosen model for the competition. Most of the experiments with hyperparameters and their results (F-scores) are
 saved in comments in text_processing.py module. Our best model has the following configuration:
 
-![](CNN_conf.png)
+![](images/CNN_conf.png)
 
 The best model got the F-score equal to 0.8556 on our own test set. The loss and accuracy during training and validation presented on the figure below.
 
-![](loss_acc.png)
+![](images/loss_acc.png)
 
 
 ### Bag-of-words
@@ -80,7 +80,7 @@ We also tried a very simple approach without any embeddings (experiments in the 
 
 Then we build a MLP with only one hidden layer consisting of 64 nodes on top of this presentation (we already saw in the exercise set 4 that building a deeper network on top of this representation does not help the accuracy at all, but only makes the training slower) with dropout layer with the parameter 0.5 added before the output layer:
 
-![](bow_model64.png)    
+![](images/bow_model64.png)    
 
 This simple network gave very nice results with F-score of 85.1% on our test set after training with 10 epochs. So the result is almost as good as with the much more complicated CNN approach (F-score of 85.4% on our test set). Our hypothesis is that this is because this kind of a topic classification is actually quite simple task, because each topic has a distinct (though they are of course heavily overlapping especially on the related topics) vocabulary. For instance if the news item has words `stock` and `price`, it is probably about stock markets, and so on.
 
