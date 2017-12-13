@@ -16,6 +16,10 @@ try:
 except:
    import pickle
 
+"""
+Train a simple MLP on top of the bag-of-words representation.
+"""
+
 
 # Tensorflow memory consumption limit. Uncomment if needed.
 # import tensorflow as tf
@@ -28,7 +32,8 @@ except:
 # # Create a session with the above options specified.
 # k.tensorflow_backend.set_session(tf.Session(config=config))
 
-
+## --------set the parameters and read data ---------------------------------------##
+   
 random.seed(1234)
 database_path = 'train/'
 embeddings_path = 'embeddings/'
@@ -57,6 +62,11 @@ max_news_length = 300
 (topics, topic_index, topic_labels) = read_topics(database_path)
 n_class = len(topics)
 
+with open(corpus_path + 'coalesced_data.pickle', 'rb') as f:
+    data_cache = pickle.load(f)
+
+
+## --------define the model ---------------------------------------##
 
 model = Sequential()
 model.add(Dense(64, input_shape=(dict_size,)))
@@ -70,26 +80,27 @@ model.compile(loss='binary_crossentropy',
               metrics=['accuracy'])
 print(model.summary())
 
-with open(corpus_path + 'coalesced_data.pickle', 'rb') as f:
-    data_cache = pickle.load(f)
+## --------split the data to train and test sets, and define the generator for batch training--------------##
 
 train_files, validation_files, test_files = split_data()
 train_generator = text_generator(batch_size, n_class, max_news_length, corpus_path, train_files, data_cache, True, dict_size)
 train_steps = round(len(train_files) / batch_size)
-test_steps = round(len(test_files) / batch_size)
+test_steps = round(len(test_files) / batch_size) + 1
 
-print("Train steps: ", train_steps, ', Test steps: ', test_steps)
+## -------- train the model ---------------------------------------##
+
 model.fit_generator(generator=train_generator,
                     steps_per_epoch=train_steps,
                     epochs=10
                     )
 
-#prob_test = model.predict(np.array(test_seq_matrix), batch_size=batch_size)
+## -------- predict and test F-score for the test data---------------------------##
+
 test_generator = text_generator(batch_size, n_class, max_news_length, corpus_path, test_files, data_cache, True, dict_size)
 news_tags_matrix = read_tag_batch(n_class, corpus_path, test_files, data_cache)
 
-prob_test = m.predict_generator(test_generator, test_steps)
+prob_test = model.predict_generator(test_generator, test_steps)
 thresholds = (0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
 for thres in thresholds:
     pred_test = np.array(prob_test) > thres
-    print('cutoff: ', thres, ' F1 score: ', f1_score(news_tags_matrix[0:29952], pred_test, average='micro'))
+    print('cutoff: ', thres, ' F1 score: ', f1_score(news_tags_matrix, pred_test, average='micro'))

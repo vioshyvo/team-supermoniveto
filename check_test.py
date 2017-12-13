@@ -2,6 +2,12 @@ import numpy as np
 from src.data_utility import read_topics, read_xml_file
 import os
 
+"""
+Read the results file, and print the predicted tags along with the contents
+of the files for the sanity check
+"""
+
+
 results_file = 'results.txt'
 
 database_path = 'train/'

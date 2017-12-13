@@ -12,7 +12,7 @@ This repo contains a deep learning course final project of team **supermoniveto*
 * [text_processing.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_processing.py) python file for constructing and testing different CNN models. **Contains the final model.**
 * [text_projectVilleT.ipynb](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_projectVilleT.ipynb) python notebook for testing LSTM models.
 * [test_onehot.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/test_onehot.py) python file for testing MLP with bag-of-words presentation with whole data. **Contains the simple MLP model.**
-* [test_project.ipynb](https://github.com/vioshyvo/team-supermoniveto/blob/master/test_project.ipynb) notebook with initial modeling with bag-of-words MLP with 10K/10K train/test split.
+* [text_project.ipynb](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_project.ipynb) notebook with initial modeling with bag-of-words MLP with 10K/10K train/test split.
 * [test_conv.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/test_conv.py) python script with initial tests with a simple CNN with multiple parallel CNN layers.
 
 #### Pre-processing & helpers
@@ -20,6 +20,7 @@ This repo contains a deep learning course final project of team **supermoniveto*
 * [src/data_utility.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/src/data_utility.py) contains the preprocessing functions such as downloading and parsing the data and tags. It also has functions to clean the texts and vectorize them.
 * [tags_dist.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/tags_dist.py) contains a function to plot the distribution of the tags.
 * [text_generator.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_generator.py) helper for training a network in batches.
+* [check_test.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/check_test.py) print predicted labels for the test set along with contents of files to perform a sanity check on the results
 
 #### Delivering the results
 * [read_test.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/read_test.py) python script for reading the test set and predicting its outcome with the best model.
