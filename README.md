@@ -6,10 +6,10 @@ This repo contains a deep learning course final project of team **supermoniveto*
 - Anisia Katinskaia
 
 
-### Naviagtion
+### Navigation
 #### Pre-processing
 
-* [src/data_utility.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/src/data_utility.py) contains the preprocessing functions such as downloading and parsing the data and tags. It also has functions to clean the texts and vectorize them.
+* [src/data_utility.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/src/data_utility.py) contains the pre-processing functions such as downloading and parsing the data and tags. It also has functions to clean the texts and vectorise them.
 
 #### Helpers
 * [tags_dist.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/tags_dist.py) contains a function to plot the distribution of the tags.
@@ -50,23 +50,21 @@ of random numbers from normal distribution.
 
 We divided the data set into a training set consisting of 80% of the news items, and into the test set and the validation set, which was used to compute the validation loss after each iteration to check for the convergence, each consisting of 10% of the corpus (In Keras term validation set is used in a bit different meaning than normally; I think that normally by the validation set is meant a set that is not used in the model selection phase, and which you use to estimate the generalization error of your best model). We decided not to do any cross-validation, because training of the models was slow enough even without it.
 
-### Initial modeling attempts
+### Initial modelling attempts
 
 Some verification of the model was done with 20K random sample from the data, which was split on the training set of 10K points and a test set of 10K points. A first thing we tried was a MLP with one hidden layer that was using a binary bag-of-words representation (on the file `text_project.ipynb`). This gave 79% F-score on the test set: this was a nice baseline for us to beat with more complicated models trained with the whole data set.
 
- Experiments with combination of CNN and LSTM were done on
-20K sample from the data.
-
+Experiments with combination of CNN and LSTM were done on the same 20K split that above BOW model used. With this little data, the best results were similar to the F-score achieved by the simple MLP. The best performance I got was 0.7876 and it was achieved with one 1D convolutional layer with two following Dense layers with 512 and number of classes hidden units respectively. The best performance for LSTM-like network was with bidirectional LSTM, where it had the same dense layers, but instead of 1D convolution it had bidirectional LSTM layer with 100 memory units. This achieved F-score of 0.7067.
 
 
 ### CNN
 
-During the testing, we quickly realized that CNN was showing much better f score than any other models. As it seemed that
+During the testing, we quickly realized that CNN was showing much better F-score than any other models. As it seemed that
 the CNN was the way to go we experimented a lot of different sets of hyperparameters by hand (batch size, number of epochs,
 dimensionality of embeddings, with/without random initialisation for words not presented in Glove embedding set, number of
 convolutional layers, number and sizes of filters, size of dropout, with/without batch normalization, pool size, size and
 number of dense layers). After exhaustive search for the best hyperparameters we had some idea of what would be
-our chosen model for the competition. Most of the experiments with hyperparameters and their results (f scores) are
+our chosen model for the competition. Most of the experiments with hyperparameters and their results (F-scores) are
 saved in comments in text_processing.py module. Our best model has the following configuration:
 
 ![](CNN_conf.png)
@@ -78,20 +76,20 @@ The best model got the F-score equal to 0.8556 on our own test set. The loss and
 
 ### Bag-of-words
 
-We also tried a very simple approach without any embeddings (experiments in the file `test_onehot.py`): we just read a whole training set into the binary bag-of-words format. This representation of the data has d = 402716 dimensions and each of the dimensions presents one word in a dictionary: it is 1 if the word is present for this document, and 0 otherwise. So this representation discards all the information regarding the order and frequencies of the words (we also did some initial testing with using word counts or TF-IDF instead of the binary representation, but they gave worse results, so we stuck with the binary representation).
+We also tried a very simple approach without any embeddings (experiments in the file `test_onehot.py`): we just read a whole training set into the binary bag-of-words format. This representation of the data has d = 402716 dimensions and each of the dimensions presents one word in a dictionary: it is 1 if the word is present for this document, and 0 otherwise. This representation discards all the information regarding the order and frequencies of the words (we also did some initial testing with using word counts or TF-IDF instead of the binary representation, but they gave worse results, so we stuck with the binary representation).
 
 Then we build a MLP with only one hidden layer consisting of 64 nodes on top of this presentation (we already saw in the exercise set 4 that building a deeper network on top of this representation does not help the accuracy at all, but only makes the training slower) with dropout layer with the parameter 0.5 added before the output layer:
 
 ![](bow_model64.png)    
 
-This very simple network gave a very nice results with F-score of 85.1% on our test set after training with 10 epochs. So the result is almost as good as with the much more complicated CNN approach (F-score of 85.4% on our test set). Our hypothesis is that this is because this kind of a topic classification is actually quite simple task, because each topic has a distinct (though they are of course heavily overlapping especially on the related topics) vocabulary. For instance if the news item has words `stock` and `price`, it is probably about stock markets, and so on.
+This simple network gave very nice results with F-score of 85.1% on our test set after training with 10 epochs. So the result is almost as good as with the much more complicated CNN approach (F-score of 85.4% on our test set). Our hypothesis is that this is because this kind of a topic classification is actually quite simple task, because each topic has a distinct (though they are of course heavily overlapping especially on the related topics) vocabulary. For instance if the news item has words `stock` and `price`, it is probably about stock markets, and so on.
 
 This means that you do not actually have to extract the meaning or any sentence structures from the test to get very nice results, and this is why the simple MLP built on top of the bag-of-words representation, which discards all the information about the order of words, has a performance that is comparable to the much more complicated CNN and LSTM approaches.
 
-### LSTM
+### GRU, Bidirectional and other attempts
 
 Being curious, we also expanded our views outside of the course and did some trials
-with combination of CNN and LSTM where first comes the convolutions and then the LSTM is applied for the convolved layers. We also tried to approximate f score by a differentiable function and optimize a network using that.
+with combination of CNN and LSTM where first comes the convolutions and then the LSTM is applied for the convolved layers. We also tried to approximate F-score by a differentiable function and optimize a network using that.
 Final two models that we tried were bidirectional LSTM, which is used for the sequence classification when the whole sequence
 is known, and gated recurrent unit (GRU) which should be similar to LSTM but have faster training as it is missing one
 of the gates from LSTM.
