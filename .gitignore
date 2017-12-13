@@ -9,5 +9,6 @@ dictionary.json
 glove_embeddings_200.pickle
 *.pickle
 results.txt
+*.h5
 
 .idea/
