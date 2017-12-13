@@ -17,16 +17,31 @@ def iter_window(iterable, size):
                 yield result
             break
 
-def read_test_batch(max_text_length, database_path = 'test/'):
+def read_test_batch(max_text_length, database_path = 'test/', bag_of_words = False, dict_size = None, batch = None):
     vectorized_path = database_path + 'REUTERS_CORPUS_2/vectorized/'
-    file_batch = os.listdir(vectorized_path)
-    file_batch.sort()
+    if batch:
+        file_batch = batch
+    else:
+        file_batch = os.listdir(vectorized_path)
+        file_batch.sort()
+
     data_rows = []
-    for f in file_batch:
+
+    n_row = len(file_batch)
+    if bag_of_words:
+        data_matrix = np.zeros((n_row, dict_size), dtype = np.int32)
+    
+    for c, f in enumerate(file_batch):
         data = np.load(vectorized_path + f)
-        data = sequence.pad_sequences([data], maxlen=max_text_length, padding='post')
+        if bag_of_words:
+            data_matrix[c, list(data)] = 1
+        else:
+            data = sequence.pad_sequences([data], maxlen=max_text_length, padding='post')
         data_rows.append(data)
-    return np.vstack(data_rows)
+    
+    if not bag_of_words:
+        data_matrix = np.vstack(data_rows)
+    return data_matrix
 
 
 def read_file_batch(n_class, max_text_length, corpus_path, file_batch, data_cache=None, bag_of_words = False, dict_size = None):
@@ -97,6 +112,13 @@ def read_tag_batch(n_class, corpus_path, file_batch, data_cache = None):
     for i in range(n_rows):
         tags_matrix[i, list(tag_rows[i])] = 1
     return tags_matrix            
+
+def text_generator_test(batch_size, max_text_length, database_path, files_to_use, bag_of_words = False, dict_size = None):
+    while True:
+        for file_batch in iter_window(files_to_use, batch_size):
+            data_matrix = read_test_batch(max_text_length, database_path, bag_of_words, dict_size, file_batch)
+            yield data_matrix
+    pass
 
 
 if __name__== '__main__':

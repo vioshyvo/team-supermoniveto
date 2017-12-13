@@ -88,7 +88,7 @@ model.fit_generator(generator=train_generator,
 test_generator = text_generator(batch_size, n_class, max_news_length, corpus_path, test_files, data_cache, True, dict_size)
 news_tags_matrix = read_tag_batch(n_class, corpus_path, test_files, data_cache)
 
-prob_test = model.predict_generator(test_generator, test_steps)
+prob_test = m.predict_generator(test_generator, test_steps)
 thresholds = (0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
 for thres in thresholds:
     pred_test = np.array(prob_test) > thres
