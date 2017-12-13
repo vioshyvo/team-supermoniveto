@@ -71,6 +71,22 @@ def text_generator(batch_size, n_class, max_text_length, corpus_path, files_to_u
             yield (data_matrix, tags_matrix)
     pass
 
+def read_tag_batch(n_class, corpus_path, file_batch, data_cache = None):
+    tag_path = corpus_path + 'tags/'
+    tag_rows = []
+    for f in file_batch:
+        if data_cache:
+            tags = data_cache['tags'][f]
+        else:
+            tags = np.load(tag_path + f)
+        tag_rows.append(tags)
+    
+    n_rows = len(tag_rows)
+    tags_matrix = np.zeros((n_rows, n_class))
+    for i in range(n_rows):
+        tags_matrix[i, list(tag_rows[i])] = 1
+    return tags_matrix            
+
 
 if __name__== '__main__':
     corpus_path = "train/REUTERS_CORPUS_2/"

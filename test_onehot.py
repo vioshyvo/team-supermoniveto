@@ -10,7 +10,7 @@ import random
 from keras.layers import Dropout, Dense, Activation
 from keras.models import Sequential
 from sklearn.metrics import f1_score
-from text_generator import text_generator, read_file_batch
+from text_generator import text_generator, read_tag_batch
 try:
    import cPickle as pickle
 except:
@@ -51,15 +51,15 @@ else:
     with open(word_to_index_pickle_file, "wb") as f:
         pickle.dump(word_to_index, f)
 
-dict_size = len(word_to_index.keys())
-batch_size = 256
+dict_size = len(word_to_index.keys()) + 1
+batch_size = 64
 max_news_length = 300
 (topics, topic_index, topic_labels) = read_topics(database_path)
 n_class = len(topics)
 
 
 model = Sequential()
-model.add(Dense(512, input_shape=(dict_size,)))
+model.add(Dense(64, input_shape=(dict_size,)))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 model.add(Dense(n_class))
@@ -76,16 +76,21 @@ with open(corpus_path + 'coalesced_data.pickle', 'rb') as f:
 train_files, validation_files, test_files = split_data()
 train_generator = text_generator(batch_size, n_class, max_news_length, corpus_path, train_files, data_cache, True, dict_size)
 train_steps = round(len(train_files) / batch_size)
+test_steps = round(len(test_files) / batch_size)
 
-print("Train steps", train_steps)
+print("Train steps: ", train_steps, ', Test steps: ', test_steps)
 model.fit_generator(generator=train_generator,
                     steps_per_epoch=train_steps,
-                    epochs=5
+                    epochs=10
                     )
 
-test_seq_matrix, news_tags_matrix = read_file_batch(n_class, max_news_length, corpus_path, test_files, data_cache, True, dict_size)
+#prob_test = model.predict(np.array(test_seq_matrix), batch_size=batch_size)
+test_generator = text_generator(batch_size, n_class, max_news_length, corpus_path, test_files, data_cache, True, dict_size)
+news_tags_matrix = read_tag_batch(n_class, corpus_path, test_files, data_cache)
 
-prob_test = model.predict(np.array(test_seq_matrix), batch_size=batch_size)
-pred_test = np.array(prob_test) > 0.5
-print('F1 score: ', f1_score(news_tags_matrix, pred_test, average='micro'))
+prob_test = model.predict_generator(test_generator, test_steps)
+thresholds = (0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
+for thres in thresholds:
+    pred_test = np.array(prob_test) > thres
+    print('cutoff: ', thres, ' F1 score: ', f1_score(news_tags_matrix[0:29952], pred_test, average='micro'))
 
