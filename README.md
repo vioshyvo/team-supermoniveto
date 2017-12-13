@@ -90,7 +90,7 @@ This means that you do not actually have to extract the meaning or any sentence 
 ### GRU, Bidirectional and other attempts
 
 Being curious, we also expanded our views outside of the course and did some trials
-with combination of CNN and LSTM where first comes the convolutions and then the LSTM is applied for the convolved layers. We also tried to approximate F-score by a differentiable function and optimize a network using that.
+with combination of CNN and LSTM where first comes the convolutions and then the LSTM is applied for the convolved layers. We also tried to approximate F-score by a differentiable function and optimize a network using that as a loss.
 Final two models that we tried were bidirectional LSTM, which is used for the sequence classification when the whole sequence
 is known, and gated recurrent unit (GRU) which should be similar to LSTM but have faster training as it is missing one
 of the gates from LSTM.
