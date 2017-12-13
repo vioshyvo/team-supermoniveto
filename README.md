@@ -5,6 +5,26 @@ This repo contains a deep learning course final project of team **supermoniveto*
 - Ville Hyvönen
 - Anisia Katinskaia
 
+
+### Naviagtion
+#### Pre-processing
+
+* [src/data_utility.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/src/data_utility.py) contains the preprocessing functions such as downloading and parsing the data and tags. It also has functions to clean the texts and vectorize them.
+
+#### Helpers
+* [tags_dist.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/tags_dist.py) contains a function to plot the distribution of the tags.
+* [text_generator.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_generator.py) helper for training a network in batches.
+
+
+#### Testing models
+* [text_processing.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_processing.py) python file for constructing and testing different models.
+* [text_projectVilleT.ipynb](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_projectVilleT.ipynb) python notebook for more tested models.
+
+
+#### Delivering the results
+* [read_test.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/read_test.py) python script for reading the test set and predicting its outcome with the best model.
+
+
 ### Summary
 
 The data we chose for our group was the [text data](https://keras.io/datasets/#reuters-newswire-topics-classification).
