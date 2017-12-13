@@ -36,7 +36,7 @@ We looked at the distribution of tags in the released data and found out that so
  while others are never present, or appear very seldom. Rare tags would be difficult to learn to predict.
 ![](images/Figure_1.png)
 
-Later we found out that tags are in hierarchical relations which explains why some tags are over-represented and we didn't
+Later we found out that tags are in hierarchical relations which explains why some tags are over-represented. We did not
 use this information for our experiments.
 
 ### Pre-processing
@@ -53,15 +53,15 @@ We divided the data set into a training set consisting of 80% of the news items,
 
 ### Initial modelling attempts
 
-Some verification of the model was done with 20K random sample from the data, which was split on the training set of 10K points and a test set of 10K points. A first thing we tried was a MLP with one hidden layer that was using a binary bag-of-words representation (on the file `text_project.ipynb`). This gave 79% F-score on the test set: this was a nice baseline for us to beat with more complicated models trained with the whole data set.
+Some verification of the model was done with 20K random sample from the data, which was split on the training set of 10K points and a test set of 10K points. A first thing we tried was a MLP with one hidden layer that was using a binary bag-of-words representation (on the file `text_project.ipynb`). This gave 0.79 F-score on the test set: this was a nice baseline for us to beat with more complicated models trained with the whole data set.
 
-Experiments with combination of CNN and LSTM were done on the same 20K split that above BOW model used. With this little data, the best results were similar to the F-score achieved by the simple MLP. The best performance I got was 0.7876 and it was achieved with one 1D convolutional layer with two following Dense layers with 512 and number of classes hidden units respectively. The best performance for LSTM-like network was with bidirectional LSTM, where it had the same dense layers, but instead of 1D convolution it had bidirectional LSTM layer with 100 memory units. This achieved F-score of 0.7067.
+Experiments with combination of CNN and LSTM were done on the same 20K split that above BOW model used. With this little data, the best results were similar to the F-score achieved by the simple MLP. The best performance out of these trials was 0.7876 and it was achieved with one 1D convolutional layer with two following Dense layers with 512 and number of classes hidden units respectively. The best performance for LSTM-like network was with bidirectional LSTM, where it had the same dense layers, but instead of 1D convolution it had bidirectional LSTM layer with 100 memory units. This achieved F-score of 0.7067.
 
 
 ### CNN
 
 During the testing, we quickly realized that CNN was showing much better F-score than any other models. As it seemed that
-the CNN was the way to go we experimented a lot of different sets of hyperparameters by hand (batch size, number of epochs,
+the CNN was the way to go, we experimented a lot of different sets of hyperparameters by hand (batch size, number of epochs,
 dimensionality of embeddings, with/without random initialisation for words not presented in Glove embedding set, number of
 convolutional layers, number and sizes of filters, size of dropout, with/without batch normalization, pool size, size and
 number of dense layers). After exhaustive search for the best hyperparameters we had some idea of what would be
@@ -93,7 +93,7 @@ Being curious, we also expanded our views outside of the course and did some tri
 with combination of CNN and LSTM where first comes the convolutions and then the LSTM is applied for the convolved layers. We also tried to approximate F-score by a differentiable function and optimize a network using that as a loss.
 Final two models that we tried were bidirectional LSTM, which is used for the sequence classification when the whole sequence
 is known, and gated recurrent unit (GRU) which should be similar to LSTM but have faster training as it is missing one
-of the gates from LSTM.
+of the gates from LSTM. These approaches did not outperform any other methods but they had some interesting properties in terms of convergence speed in terms of real time and in epochs.
 
 
 ### Future work
@@ -120,5 +120,3 @@ we should probably also predict the parent, or adjust the prediction so that we 
 These could be handled whichever way, but the most important thing would be to avoid contradictions in the tree structure.
 
 Since we tried out wide range of different kind of models, a natural way to expand the approach to the test set would be to train all of them with full data. After saving the models we could then use ensemble methods to perform the final predictions. Such approach would take a lot of time to train, but it could be beneficial as different models can capture different aspects of the news articles.
-
-More ideas?
