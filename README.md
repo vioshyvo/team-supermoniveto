@@ -12,7 +12,7 @@ This repo contains a deep learning course final project of team **supermoniveto*
 * [text_processing.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_processing.py) python file for constructing and testing different CNN models. **Contains the final model.**
 * [text_projectVilleT.ipynb](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_projectVilleT.ipynb) python notebook for testing LSTM models.
 * [test_onehot.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/test_onehot.py) python file for testing MLP with bag-of-words presentation with whole data. **Contains the simple MLP model.**
-* [test_project.ipynb](https://github.com/vioshyvo/team-supermoniveto/blob/master/test_project.ipynb) notebook with initial modeling with bag-of-words MLP with 10K/10K train/test split.
+* [text_project.ipynb](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_project.ipynb) notebook with initial modeling with bag-of-words MLP with 10K/10K train/test split.
 * [test_conv.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/test_conv.py) python script with initial tests with a simple CNN with multiple parallel CNN layers.
 
 #### Pre-processing & helpers
