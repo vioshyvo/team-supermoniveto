@@ -9,8 +9,7 @@ This repo contains a deep learning course final project of team **supermoniveto*
 
 The data we chose for our group was the [text data](https://keras.io/datasets/#reuters-newswire-topics-classification).
 In the fashion of the course we used deep learning to learn the problem and do predictions.
-We tried vast range of different models ranging from bag of words multilayer perceptron (MLP) to a combination of
-different advanced techniques such as CNN and LSTM.
+We tried a vast range of different models ranging from the multilayer perceptron (MLP) built on top of the binary bag-of-words representation to the convolutional neural networks (CNN) and long short term memory networks (LSTM) built on top of the word embeddings.
 
 We looked at the distribution of tags in the released data and found out that some of the topics are present most of the samples
  while others are never present, or appear very seldom. Rare tags would be difficult to learn to predict.
@@ -19,20 +18,28 @@ We looked at the distribution of tags in the released data and found out that so
 Later we found out that tags are in hierarchical relations which explains why some tags are over-represented and we didn't
 use this information for our experiments.
 
+### Pre-processing
+
 First, we pre-processed the data, i.e. parsed xml-files, tokenized all texts, removed stop-words and punctuation,
 lowercased all words and replaced numbers with NUM tag which might have not been a good idea as GloVe (see below) has embeddings for most of the numbers.
-
 
 For the word embeddings we used the pre-trained [GloVe embeddings](https://nlp.stanford.edu/projects/glove/).
 Most of the modelling is done with 200 dimensional representations and the competition model training was done with
 300 dimensional representations. For words which are not presented in Glove embedding set we initialised vectors
 of random numbers from normal distribution.
 
-Some verification of the model was done with 20K random sample from the data, a bunch of experiments with CNN and
-several experiments with LSTM were performed on the whole data. Experiments with combination of CNN and LSTM were done on
+We divided the data set into a training set consisting of 80% of the news items, and into the test set and the validation set, which was used to compute the validation loss after each iteration to check for the convergence, each consisting of 10% of the corpus (In Keras term validation set is used in a bit different meaning than normally; I think that normally by the validation set is meant a set that is not used in the model selection phase, and which you use to estimate the generalization error of your best model). We decided not to do any cross-validation, because training of the models was slow enough even without it.
+
+### Initial modeling attempts
+
+Some verification of the model was done with 20K random sample from the data, which was split on the training set of 10K points and a test set of 10K points. A first thing we tried was a MLP with one hidden layer that was using a binary bag-of-words representation (on the file `text_project.ipynb`). This gave 79% F-score on the test set: this was a nice baseline for us to beat with more complicated models trained with the whole data set.
+
+ Experiments with combination of CNN and LSTM were done on
 20K sample from the data.
-10% of the data was used for validation and another 10% for testing. Cross-validation on the whole data was very time
-consuming as well as training LSTM models.
+
+
+
+### CNN
 
 During the testing, we quickly realized that CNN was showing much better f score than any other models. As it seemed that
 the CNN was the way to go we experimented a lot of different sets of hyperparameters by hand (batch size, number of epochs,
@@ -44,10 +51,24 @@ saved in comments in text_processing.py module. Our best model has the following
 
 ![](CNN_conf.png)
 
-The best model got the F score equal to 0.8556. The loss and accuracy during training and validation presented on the
-figure below.
+The best model got the F-score equal to 0.8556 on our own test set. The loss and accuracy during training and validation presented on the figure below.
 
 ![](loss_acc.png)
+
+
+### Bag-of-words
+
+We also tried a very simple approach without any embeddings (experiments in the file `test_onehot.py`): we just read a whole training set into the binary bag-of-words format. This representation of the data has d = 402716 dimensions and each of the dimensions presents one word in a dictionary: it is 1 if the word is present for this document, and 0 otherwise. So this representation discards all the information regarding the order and frequencies of the words (we also did some initial testing with using word counts or TF-IDF instead of the binary representation, but they gave worse results, so we stuck with the binary representation).
+
+Then we build a MLP with only one hidden layer consisting of 64 nodes on top of this presentation (we already saw in the exercise set 4 that building a deeper network on top of this representation does not help the accuracy at all, but only makes the training slower) with dropout layer with the parameter 0.5 added before the output layer:
+
+![](bow_model64.png)    
+
+This very simple network gave a very nice results with F-score of 85.1% on our test set after training with 10 epochs. So the result is almost as good as with the much more complicated CNN approach (F-score of 85.4% on our test set). Our hypothesis is that this is because this kind of a topic classification is actually quite simple task, because each topic has a distinct (though they are of course heavily overlapping especially on the related topics) vocabulary. For instance if the news item has words `stock` and `price`, it is probably about stock markets, and so on.
+
+This means that you do not actually have to extract the meaning or any sentence structures from the test to get very nice results, and this is why the simple MLP built on top of the bag-of-words representation, which discards all the information about the order of words, has a performance that is comparable to the much more complicated CNN and LSTM approaches.
+
+### LSTM
 
 Being curious, we also expanded our views outside of the course and did some trials
 with combination of CNN and LSTM where first comes the convolutions and then the LSTM is applied for the convolved layers. We also tried to approximate f score by a differentiable function and optimize a network using that.
