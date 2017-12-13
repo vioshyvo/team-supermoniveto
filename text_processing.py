@@ -76,6 +76,7 @@ plot_losses = PlotLosses()
 if __name__== '__main__':
     random.seed(1234)
     database_path = 'train/'
+    test_database_path = 'test/'
     embeddings_path = 'embeddings/'
     word_to_index_pickle_file = "dictionary.pickle"
     corpus_path = "train/REUTERS_CORPUS_2/"
@@ -100,6 +101,11 @@ if __name__== '__main__':
     batch_size = 256
     max_news_length = 300
     (topics, topic_index, topic_labels) = read_topics(database_path)
+    
+    index2topic = dict()
+    for k, v in topic_index.items():
+        index2topic[v] = k
+     
     n_class = len(topics)
 
     embedding_size = 300
@@ -122,6 +128,7 @@ if __name__== '__main__':
 
     model.add(embedding_layer)
 
+    #1
     # model.add(Conv1D(100, 4))
     # model.add(Activation('relu'))
     # model.add(MaxPooling1D(pool_size=3))
@@ -135,6 +142,7 @@ if __name__== '__main__':
     # 3 epochs
     # F1 score:  0.829635600654
 
+    #2
     # model.add(Conv1D(300, 4, activation='relu'))
     # model.add(Conv1D(100, 6, activation='relu'))
     # model.add(MaxPooling1D(pool_size=3))
@@ -165,6 +173,7 @@ if __name__== '__main__':
     # 5 epochs, batch size=256, Glove=300, unknown words handling:
     # F1 score:  0.84929320338
 
+    #3
     model.add(Conv1D(300, 4, activation='relu'))
     model.add(Conv1D(100, 6, activation='relu'))
     model.add(MaxPooling1D(pool_size=3))
@@ -176,6 +185,7 @@ if __name__== '__main__':
     model.add(Dropout(0.5))
     model.add(Dense(n_class, activation='sigmoid'))
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    # 
     # 5 epochs, batch size=256, Glove=300, unknown words handling:
     # F1 score:  0.849875387055
 
@@ -188,6 +198,7 @@ if __name__== '__main__':
     # 5 epochs, batch size=256, Glove=300, unknown words handling, threshold=0.6:
     # F1 score:  0.846565697727
 
+    #4
     # model.add(Conv1D(300, 4, activation='relu'))
     # model.add(Conv1D(100, 6, activation='relu'))
     # model.add(MaxPooling1D(pool_size=3))
@@ -201,6 +212,7 @@ if __name__== '__main__':
     # 5 epochs:
     # F1 score:  0.830928370233
 
+    #5
     # model.add(Conv1D(300, 8, activation='relu'))
     # model.add(Conv1D(100, 16, activation='relu'))
     # model.add(MaxPooling1D(pool_size=3))
@@ -212,10 +224,14 @@ if __name__== '__main__':
     # model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     # F1 score:  0.816741292086
 
-    #model.add(LSTM(100))
+    #6
+    #model.add(LSTM(128, return_sequences=True))
+    #model.add(LSTM(64))
     #model.add(Dense(n_class, activation='sigmoid'))
     #model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
     model.summary()
+
     #model.fit(np.array(news_train), np.array(tags_train_matrix), epochs=3, batch_size=64)
 
     with open(corpus_path + 'coalesced_data.pickle', 'rb') as f:
@@ -243,3 +259,4 @@ if __name__== '__main__':
     prob_test = model.predict(np.array(test_seq_matrix), batch_size=batch_size)
     pred_test = np.array(prob_test) > 0.5
     print('F1 score: ', f1_score(news_tags_matrix, pred_test, average='micro'))
+    model.save("best_model.h5") 
