@@ -17,6 +17,12 @@ try:
 except:
     import pickle
 
+
+
+"""
+Module with all functions for reading, processing and vectorising data 
+"""
+
 def download_test(database_path='test/'):
     """
     Downloads and unzips the test set if the download dir given as parameter
@@ -122,6 +128,11 @@ def read_topics(database_path):
 
 
 def read_xml_file(file_xml):
+    """
+    Function to parse xml files
+    :param file_xml:
+    :return: list of sentences and tags for the given file
+    """
     sentences = []
     tags = []
     read_tags = False
@@ -196,6 +207,11 @@ def read_news(database_path, n_train, n_test, seed=None):
 
 
 def filter_text(sentences):
+    """
+    Function to tokenize texts, remove punctuation and stop words
+    :param sentences:
+    :return: a list of tokens
+    """
     stop_words = set(stopwords.words('english'))
     result = []
     for sentence in sentences:
@@ -318,6 +334,11 @@ def vectorize_data(database_path):
 
 
 def coalesce_data(database_path):
+    """
+    Function to save all the vectorised data into one pickle file to load it into memory if needed
+    :param database_path:
+    :return:
+    """
     result = {
         'data': {},
         'tags': {}
@@ -419,6 +440,12 @@ def download_glove(embeddings_path='embeddings/'):
 
 
 def unzip_glove(embeddings_path="embeddings/", zip_file_name="glove.6B.zip"):
+    """
+    Function to unzip Glove files
+    :param embeddings_path:
+    :param zip_file_name:
+    :return:
+    """
     unzipped_names = ['glove.6B.100d.txt', 'glove.6B.200d.txt', 'glove.6B.300d.txt', 'glove.6B.50d.txt', 'glove.6B.zip']
     if not (all([os.path.exists(embeddings_path + i) for i in unzipped_names])):
         print("Unzipping")

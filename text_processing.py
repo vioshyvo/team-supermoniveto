@@ -18,6 +18,11 @@ from matplotlib import pyplot as plt
 from IPython.display import clear_output
 
 
+"""
+Main file with a bunch of experiments with CNN models and some LSTM models. 
+"""
+
+
 # Tensorflow memory consumption limit. Uncomment if needed.
 # import tensorflow as tf
 # from keras import backend as k
@@ -81,12 +86,19 @@ if __name__== '__main__':
     word_to_index_pickle_file = "dictionary.pickle"
     corpus_path = "train/REUTERS_CORPUS_2/"
 
+    #Run to download and unzip data
     #download_data(database_path)
+    #Run to download Glove embeddings
     #download_glove(embeddings_path)
+    #Run to unzip Glove embeddings
     #unzip_glove("embeddings/", "glove.6B.zip")
+    #Run to tokenize all text files
     #process_data(database_path)
+    #Run to build a dictionary of all words in the data
     #build_dictionary(database_path)
+    #Run to represent all texts and tags in vectorized form
     #vectorize_data(database_path)
+    #Run if you need to keep all vectorized data in memory, for slow memory disc reading
     #coalesce_data(database_path)
 
     if os.path.exists(word_to_index_pickle_file):
@@ -107,7 +119,6 @@ if __name__== '__main__':
         index2topic[v] = k
      
     n_class = len(topics)
-
     embedding_size = 300
 
     embeddings = get_glove_embeddings(embedding_size, embeddings_path)
@@ -173,7 +184,7 @@ if __name__== '__main__':
     # 5 epochs, batch size=256, Glove=300, unknown words handling:
     # F1 score:  0.84929320338
 
-    #3
+    #3 The best model 
     model.add(Conv1D(300, 4, activation='relu'))
     model.add(Conv1D(100, 6, activation='relu'))
     model.add(MaxPooling1D(pool_size=3))
@@ -231,14 +242,11 @@ if __name__== '__main__':
     #model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
     model.summary()
-
-    #model.fit(np.array(news_train), np.array(tags_train_matrix), epochs=3, batch_size=64)
-
+    
     with open(corpus_path + 'coalesced_data.pickle', 'rb') as f:
         data_cache = pickle.load(f)
 
     train_files, validation_files, test_files = split_data()
-    print(len(train_files))
     train_generator = text_generator(batch_size, n_class, max_news_length, corpus_path, train_files, data_cache)
     validation_generator = text_generator(batch_size, n_class, max_news_length, corpus_path, validation_files, data_cache)
     train_steps = round(len(train_files) / batch_size)

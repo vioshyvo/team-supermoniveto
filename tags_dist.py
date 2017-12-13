@@ -4,6 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+"""
+Code to make a figure with dictribution of all topics over all documents
+"""
+
 def autolabel(rects):
     """
     Attach a text label above each bar displaying its height
@@ -49,10 +53,5 @@ if __name__== '__main__':
     ax.set_xticklabels(tag_names, rotation='vertical', fontsize=6)
 
     ax.legend((rects1[0],))
-
-
-
-
     autolabel(rects1)
-
     plt.show()

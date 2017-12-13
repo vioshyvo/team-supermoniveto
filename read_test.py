@@ -4,6 +4,10 @@ from keras.models import load_model
 
 import numpy as np
 
+"""
+Module to read, preprocess, vectorize test data and predict its labels.
+"""
+
 test_path = 'test/'
 max_news_length = 300
 
