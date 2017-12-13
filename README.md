@@ -20,6 +20,7 @@ This repo contains a deep learning course final project of team **supermoniveto*
 * [src/data_utility.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/src/data_utility.py) contains the preprocessing functions such as downloading and parsing the data and tags. It also has functions to clean the texts and vectorize them.
 * [tags_dist.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/tags_dist.py) contains a function to plot the distribution of the tags.
 * [text_generator.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/text_generator.py) helper for training a network in batches.
+* [check_test.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/check_test.py) print predicted labels for the test set along with contents of files to perform a sanity check on the results
 
 #### Delivering the results
 * [read_test.py](https://github.com/vioshyvo/team-supermoniveto/blob/master/read_test.py) python script for reading the test set and predicting its outcome with the best model.
